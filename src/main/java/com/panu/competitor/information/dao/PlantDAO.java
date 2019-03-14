@@ -1,0 +1,54 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.panu.competitor.information.dao;
+
+import com.panu.competitor.information.common.ConstantCommon;
+import com.panu.competitor.information.pojo.entity.Plant;
+import java.util.ArrayList;
+import java.util.List;
+import javax.inject.Named;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.query.Query;
+import org.springframework.beans.factory.annotation.Autowired;
+
+/**
+ *
+ * @author HNDK
+ */
+@Named
+public class PlantDAO extends BaseDAO<Plant> {
+
+    @Autowired
+    private SessionFactory sessionFactory;
+
+    public PlantDAO() {
+        super(Plant.class);
+    }
+
+    public List<Plant> getPlantsByCompanyIdandLocationId(int companyId, int location) {
+        Session session = sessionFactory.getCurrentSession();
+        Transaction trans = session.beginTransaction();
+        List<Plant> plantList = new ArrayList<Plant>();
+        try {
+            Query query = session.createQuery("SELECT p FROM Plant p WHERE p.companyId =:companyId AND p.location =:location AND p.isDelete =:isDelete AND p.activeStatus =:activeStatus");
+            query.setParameter("companyId", companyId);
+            query.setParameter("location", location);
+            query.setParameter("activeStatus", ConstantCommon.STATUS_ACTIVE);
+            query.setParameter("isDelete", ConstantCommon.STATUS_ISDELETE);
+            List<Plant> list = query.list();
+            trans.commit();
+            if (list != null && list.size() > 0) {
+                plantList.addAll(list);
+            }
+        } catch (Exception e) {
+            trans.rollback();
+        }
+        return plantList;
+    }
+
+}

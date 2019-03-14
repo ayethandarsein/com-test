@@ -1,0 +1,32 @@
+package com.panu.competitor.information.controller.bean;
+
+import java.util.Arrays;
+import java.util.List;
+
+import javax.faces.bean.ApplicationScoped;
+import javax.faces.bean.ManagedBean;
+
+@ManagedBean(name = "plantInfoDetailsService")
+@ApplicationScoped
+public class PlantInfoDetailsService {
+	private  static Integer[] zones;
+     
+    static {
+        zones = new Integer[3];
+        zones[0] = 18;
+        zones[1] = 19;
+        zones[2] = 20;
+         
+        
+    }
+     
+   
+     
+    public List<Integer> getColors() {
+    	zones = new Integer[3];
+        zones[0] = 18;
+        zones[1] = 19;
+        zones[2] = 20;
+        return Arrays.asList(zones);
+    }
+}

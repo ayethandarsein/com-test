@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:adm="http://github.com/adminfaces"
+                template="#{layoutMB.template}">
+
+    <f:metadata>
+        <f:viewAction action="#{plantEntryFormMB.init}"></f:viewAction>
+        <f:viewAction action="#{menuMB.init()}"></f:viewAction>
+    </f:metadata>
+    <ui:define name="head-end">
+        <meta name="viewport" content="width=device-width"/>
+        <h:outputStylesheet library="css" name="competitor_datatable_style.css"/> 
+        <style type="text/css">
+
+            .ui-datatable .ui-datatable-header {
+                text-align: right !important;
+            }
+            div.ui-dialog-titlebar.ui-dialog-titlebar.ui-widget-header{
+                background-color:  #ecf0f5!important;
+            }
+
+        </style>
+    </ui:define>
+
+    <ui:define name="title">
+        Plant Form
+    </ui:define>
+
+    <ui:define name="description">
+    </ui:define>
+    <ui:define name="body">
+        <adm:breadcrumb title="Plant" link="/view/marketing/plant/PlantEntryForm.xhtml"/>
+        <div class="box box-primary" style="border:white">
+            <div class="box-header with-border">
+
+                <h:form id="plant_entry_form" enctype="multipart/form-data">
+                    <p:messages id="msgs" closable="true"/>
+                    <p:panel style="-moz-border-radius: 25px!important; -webkit-border-radius: 25px!important;">
+                        <div align="right" class="ui-g"> 
+                            <p:spacer width="1"/>
+                            <div class="ui-g-12 ui-md-12 ui-lg-12">
+                                <div class="ui-g-12 ui-md-6 ui-lg-6">
+                                    <div class="ui-g-12 ui-md-12 ui-lg-5" align="right">
+                                        <p:focus/>
+                                        <p:outputLabel value="Plant Name:"/>
+                                    </div>
+                                    <div class="ui-g-12 ui-md-12 ui-lg-6 ui-fluid">
+                                        <p:inputText maxlength="100" id="plant_name" requiredMessage="#{plantEntryFormMB.plantNameRequiredMessage}" value="#{plantEntryFormMB.plant.plantName}" required="true"/>
+
+                                    </div> 
+                                </div>
+                                <div class="ui-g-12 ui-md-6 ui-lg-6">
+                                    <div class="ui-g-12 ui-md-12 ui-lg-3" align="right">
+                                        <p:outputLabel value="Company Name:"/>
+                                    </div>
+                                    <div class="ui-g-12 ui-md-12 ui-lg-6 ui-fluid">
+                                        <p:selectOneMenu id="company_name" requiredMessage="#{plantEntryFormMB.companyNameRequiredMessage}" value="#{plantEntryFormMB.plant.companyId}" filter="false" label="Please Select Company:" required="true">
+                                            <f:selectItem itemLabel="Select Company" itemValue="" noSelectionOption="true" />
+                                            <f:selectItems value="#{plantEntryFormMB.companyList}" var="company" itemLabel="#{company.name}" itemValue="#{company.companyId}"/> 
+                                        </p:selectOneMenu>
+
+                                    </div>
+                                </div>
+                                <div class="ui-g-12"/>
+                                <div class="ui-g-12 ui-md-6 ui-lg-6">
+                                    <div class="ui-g-12 ui-md-12 ui-lg-5" align="right">
+                                        <p:outputLabel value="Location Name:"/>
+                                    </div> 
+                                    <div class="ui-g-12 ui-md-12 ui-lg-6 ui-fluid">
+                                        <p:selectOneMenu id="location" requiredMessage="#{plantEntryFormMB.locationRequiredMessage}" value="#{plantEntryFormMB.plant.location}" filter="false" label="Please Select Location:" required="true"> 
+                                            <f:selectItem itemLabel="Select Location" itemValue="" noSelectionOption="true" />
+                                            <f:selectItems value="#{plantEntryFormMB.locationList}" var="location" itemLabel="#{location.name}" itemValue="#{location.locationId}"/>
+                                        </p:selectOneMenu>
+                                    </div>
+                                </div>
+                                <div class="ui-g-12 ui-md-6 ui-lg-6">
+                                    <div class="ui-g-12 ui-md-12 ui-lg-3" align="right">
+                                        <p:outputLabel value="Status:"/>
+                                    </div>
+                                    <div class="ui-g-12 ui-md-12 ui-lg-6 ui-fluid">
+                                        <p:selectOneMenu id="active_status" requiredMessage="#{plantEntryFormMB.statusRequiredMessage}" value="#{plantEntryFormMB.activeStatus}" filter="false" label="Please Select Status:" required="true"> 
+
+                                            <f:selectItems value="#{plantEntryFormMB.codeSetupActiveStatusList}" var="location" itemLabel="#{location.codeSetupName}" itemValue="#{location.description}"/>
+                                        </p:selectOneMenu>
+                                    </div>
+                                </div>
+                                <div class="ui-g-12"/>
+                                <div class="ui-g-12 ui-md-6 ui-lg-6">
+                                    <div class="ui-g-12 ui-md-12 ui-lg-5" align="right">
+                                        <p:outputLabel value="Latitude:"/>
+                                    </div> 
+                                    <div class="ui-g-12 ui-md-12 ui-lg-6 ui-fluid">
+                                        <p:inputNumber padControl="false" maxlength="10" thousandSeparator="" decimalPlaces="6" id="latitude" requiredMessage="#{plantEntryFormMB.latitudeRequiredMessage}" value="#{plantEntryFormMB.plant.latitude}" required="true"/>
+                                    </div>
+                                </div>
+                                <div class="ui-g-12 ui-md-6 ui-lg-6">
+                                    <div class="ui-g-12 ui-md-12 ui-lg-3" align="right">
+                                        <p:outputLabel value="Longitude:"/>
+                                    </div>
+                                    <div class="ui-g-12 ui-md-12 ui-lg-6 ui-fluid">
+                                        <p:inputNumber padControl="false" maxlength="10" thousandSeparator="" decimalPlaces="6" id="longtitude" requiredMessage="#{plantEntryFormMB.longitudeRequiredMessage}" value="#{plantEntryFormMB.plant.longitude}" required="true"/>
+                                    </div>
+                                </div>
+                                <div class="ui-g-12"/>
+                                <div class="ui-g-12 ui-md-6 ui-lg-6">
+                                    <div class="ui-g-12 ui-md-12 ui-lg-5" align="right">
+                                        <p:outputLabel value="Period:"/>
+                                    </div> 
+                                    <div class="ui-g-12 ui-md-12 ui-lg-6 ui-fluid">
+                                        <p:selectOneMenu filter="true" filterMatchMode="contains" value="#{plantEntryFormMB.period}" style="background-color: white" required="true" requiredMessage="#{plantEntryFormMB.periodRequiredMessage}">
+                                        <f:selectItem itemLabel="Select Period" itemValue="" noSelectionOption="true" />
+                                        <f:selectItems value="#{globalDropDownList.periodCurrentAndLastFiveList}" var="period" itemLabel="#{period}" itemValue="#{period}"/>
+                                    </p:selectOneMenu>
+                                    </div>
+                                </div>
+                                <div class="ui-g-12 ui-md-6 ui-lg-6">
+                                    <div class="ui-g-12 ui-md-12 ui-lg-3" align="right">
+                                        <p:outputLabel value="Zone:"/>
+                                    </div>
+                                    <div class="ui-g-12 ui-md-12 ui-lg-6 ui-fluid">
+                                        <p:selectOneMenu value="#{plantEntryFormMB.plant.zone}" style="background-color: white" required="true" requiredMessage="#{plantEntryFormMB.zoneRequiredMessage}">
+                                        <f:selectItem itemLabel="Select Zone" itemValue="" noSelectionOption="true" />
+                                        <f:selectItems value="#{globalDropDownList.codeSetupZoneList}" var="zone" itemLabel="#{zone.codeSetupName}" itemValue="#{zone.codeSetupId}"/>
+                                    </p:selectOneMenu>
+                                    </div>
+                                </div>   
+                            </div>
+                        </div>
+                        <p:spacer width="1"/>
+                        <p:separator style="display:none"/>
+                        <div class="ui-g ui-fluid" id="buttons">
+                            <div class="ui-g-12 ui-md-4 ui-lg-3" style="margin: 0 auto">
+                                <div class="ui-g-12 ui-md-6 ui-lg-6 ui-fluid">
+                                    <p:commandButton value="Save" styleClass="btn-primary fa fa-save" ajax="true" action="#{plantEntryFormMB.savePlant}"
+                                                     update="plant_entry_form,plant_datatable_form:plantTable"
+                                                     oncomplete="PF('plantTable').filter();"/>
+                                </div>
+                                <div class="ui-g-12 ui-md-6 ui-lg-6 ui-fluid">
+                                    <p:commandButton value="Reset"  styleClass="btn-info fa fa-undo" >
+                                        <p:ajax update="plant_entry_form" resetValues="true" />
+                                    </p:commandButton>
+                                </div>
+                            </div>
+                        </div>
+                    </p:panel>
+                </h:form>
+                <p:separator />
+                <h:form id="plant_datatable_form" onkeypress="if (event.keyCode === 13) {
+                            return false;
+                        }">
+                    <p:dataTable id="plantTable" var="plant" paginator="true" rows="7" value="#{plantEntryFormMB.plantList}" widgetVar="plantTable"
+                                 editable="true" rowKey="#{plant.plantId}" filteredValue="#{plantEntryFormMB.filterPlantList}"
+                                 paginatorPosition="bottom" reflow="true"
+                                 paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown} {JumpToPageDropdown}"
+                                 currentPageReportTemplate="[ {startRecord} to {endRecord} of {totalRecords} ]" rowIndexVar="index" tableStyle="table-layout:auto"
+                                 style="width:98%;margin-left: 1%;margin-right: 1%">
+                        <f:facet name="header">
+                            <div class="ui-g">
+                                <div class="ui-lg-6" align="left">
+
+                                </div>
+                                <div class="ui-lg-6" align="right">
+                                    <p:outputLabel value="Search :" style="margin-top: 5px!important"/>
+                                    <p:inputText id="globalFilter" style="width:200px;margin-right: -19px" onkeypress="if (event.keyCode === 13) {
+                                                PF('plantTable').filter();
+                                            }"  placeholder="Enter keyword to search">
+                                    </p:inputText>
+                                </div>
+                            </div>
+                        </f:facet>
+                        <p:column headerText="No." filterMatchMode="contains" filterStyle="display:none" style="width:50px;text-align:center">
+                            <h:outputText value="#{index+1}"/>
+                        </p:column>
+                        <p:column headerText="Plant Name" filterBy="#{plant.plantName}" filterMatchMode="contains" filterStyle="display:none" >
+                            <h:outputText value="#{plant.plantName}"/>
+                        </p:column>
+                        <p:column headerText="Company Name" filterBy="#{plantEntryFormMB.getCompanyNameById(plant.companyId)}" filterMatchMode="contains" filterStyle="display:none" >
+                            <h:outputText value="#{plantEntryFormMB.getCompanyNameById(plant.companyId)}"/>
+                        </p:column>
+                        <p:column headerText="Location" filterBy="#{plantEntryFormMB.getCodeSetupNameById(plant.location)}" filterMatchMode="contains" filterStyle="display:none" >
+                            <h:outputText value="#{plantEntryFormMB.getCodeSetupNameById(plant.location)}"/>
+                        </p:column>
+                        <p:column headerText="Status" filterBy="#{plantEntryFormMB.getActiveStatus(plant.activeStatus)}" filterMatchMode="contains" filterStyle="display:none" >
+                            <h:outputText value="#{plantEntryFormMB.getActiveStatus(plant.activeStatus)}"/>
+                        </p:column>
+                        <p:column headerText="Latitude" filterBy="#{plantEntryFormMB.bigDecimalNumberFormat(plant.latitude)}" filterMatchMode="contains" filterStyle="display:none" >
+                            <h:outputText value="#{plantEntryFormMB.bigDecimalNumberFormat(plant.latitude)}"/>
+                        </p:column>
+                        <p:column headerText="Longitude" filterBy="#{plantEntryFormMB.bigDecimalNumberFormat(plant.longitude)}" filterMatchMode="contains" filterStyle="display:none" >
+                            <h:outputText value="#{plantEntryFormMB.bigDecimalNumberFormat(plant.longitude)}"/>
+                        </p:column>
+                        <p:column headerText="Period" filterBy="#{globalDropDownList.changeDateFormat(plant.plantPeriod)}" filterMatchMode="contains" filterStyle="display:none" >
+                            <h:outputText value="#{globalDropDownList.changeDateFormat(plant.plantPeriod)}"/>
+                        </p:column>
+                        <p:column headerText="Zone" filterBy="#{competitorEntryFormMB.zonetoName(plant.zone)}" filterMatchMode="contains" filterStyle="display:none" >
+                            <h:outputText value="#{competitorEntryFormMB.zonetoName(plant.zone)}"/>
+                        </p:column>
+                        <p:column headerText="Edit">
+                            <p:commandButton icon="fa fa-pencil" id="editDeptBtn"  
+                                             ajax="true"  styleClass="btn-info"
+                                             actionListener="#{plantEntryFormMB.editPlant(plant)}"  
+                                             update="plant_detail"  
+                                             oncomplete="PF('plant_detail').show();" style=" display: block; margin: 0 auto;"/>
+                        </p:column>
+                        <p:column headerText="Delete">
+                            <p:commandButton icon="fa fa-trash" styleClass="btn-danger" 
+                                             actionListener="#{plantEntryFormMB.deletePlant(plant)}" 
+                                             update="plantTable,plant_entry_form" oncomplete="PF('plantTable').filter()" style=" display: block; margin: 0 auto;">
+                                <p:confirm header="Confirmation" message="Are you sure to Delete?" icon="ui-icon-alert" />
+                            </p:commandButton>
+                        </p:column>
+                    </p:dataTable>
+                </h:form>
+                <p:dialog id="plant_detail" widgetVar="plant_detail"  
+                          header="Edit Plant"  width="500" fitViewport="true" appendTo="@(body)" modal="true" 
+                          resizable="false" draggable="false" position="center center"
+                          closeOnEscape="true" style="background-color: #eaedf1">  
+                    <h:form> 
+                        <div class="ui-g">
+                            <div class="ui-g-12 ui-md-6 ui-lg-4">
+                                <p:outputLabel value="Plant Name:"/>
+                            </div>
+                            <div class="ui-g-12 ui-md-6 ui-lg-7 ui-fluid">
+                                <p:inputText id="plant_name" maxlength="100" value="#{plantEntryFormMB.updatePlant.plantName}"/>
+                            </div>
+                        </div>
+                        <div class="ui-g">
+                            <div class="ui-g-12 ui-md-6 ui-lg-4">
+                                <p:outputLabel value="Company Name:"/>
+                            </div>
+                            <div class="ui-g-12 ui-md-6 ui-lg-7 ui-fluid">
+                                <p:selectOneMenu style="background-color: white" id="company_name" value="#{plantEntryFormMB.updatePlant.companyId}" filter="false" label="Please Select Company:">
+                                    <f:selectItems value="#{plantEntryFormMB.companyList}" var="company" itemLabel="#{company.name}" itemValue="#{company.companyId}"/> 
+                                </p:selectOneMenu>
+                            </div>
+                        </div>
+                        <div class="ui-g">
+                            <div class="ui-g-12 ui-md-6 ui-lg-4">
+                                <p:outputLabel value="Location Name:"/>
+                            </div>
+                            <div class="ui-g-12 ui-md-6 ui-lg-7 ui-fluid">
+                                <p:selectOneMenu style="background-color: white" id="location" value="#{plantEntryFormMB.updatePlant.location}" filter="false" label="Please Select Location:"> 
+                                    <f:selectItems value="#{plantEntryFormMB.locationList}" var="lo" itemLabel="#{lo.name}" itemValue="#{lo.locationId}"/>
+                                </p:selectOneMenu>
+                            </div>
+                        </div>
+                        <div class="ui-g">
+                            <div class="ui-g-12 ui-md-6 ui-lg-4">
+                                <p:outputLabel value="Status:"/>
+                            </div>
+                            <div class="ui-g-12 ui-md-6 ui-lg-7 ui-fluid">
+                                <p:selectOneMenu style="background-color: white" id="active_status" value="#{plantEntryFormMB.updateActiveStatus}" filter="false" label="Please Select Status:">
+                                    <f:selectItems value="#{plantEntryFormMB.codeSetupActiveStatusList}" var="location" itemLabel="#{location.codeSetupName}" itemValue="#{location.description}"/>
+                                </p:selectOneMenu>
+                            </div>
+                        </div>
+                        <div class="ui-g">
+                            <div class="ui-g-12 ui-md-6 ui-lg-4">
+                                <p:outputLabel value="Latitude:"/>
+                            </div>
+                            <div class="ui-g-12 ui-md-6 ui-lg-7 ui-fluid">
+                                <p:inputNumber maxlength="10" padControl="false" thousandSeparator="" decimalPlaces="6" id="latitude" value="#{plantEntryFormMB.updatePlant.latitude}"/>
+                            </div>
+                        </div>
+                        <div class="ui-g">
+                            <div class="ui-g-12 ui-md-6 ui-lg-4">
+                                <p:outputLabel value="Longitude:"/>
+                            </div>
+                            <div class="ui-g-12 ui-md-6 ui-lg-7 ui-fluid">
+                                <p:inputNumber maxlength="10" padControl="false" thousandSeparator="" decimalPlaces="6" id="longtitude" value="#{plantEntryFormMB.updatePlant.longitude}"/>
+                            </div>
+                        </div>
+                        <div class="ui-g">
+                            <div class="ui-g-12 ui-md-6 ui-lg-4">
+                                <p:outputLabel value="Period:"/>
+                            </div>
+                            <div class="ui-g-12 ui-md-6 ui-lg-7 ui-fluid">
+                                <p:selectOneMenu filter="true" filterMatchMode="contains" value="#{plantEntryFormMB.updatePeriod}" style="background-color: white" required="true" requiredMessage="#{plantEntryFormMB.periodRequiredMessage}">
+                                    <f:selectItem itemLabel="Select Period" itemValue="" noSelectionOption="true" />
+                                    <f:selectItems value="#{globalDropDownList.periodCurrentAndLastFiveList}" var="period" itemLabel="#{period}" itemValue="#{period}"/>
+                                </p:selectOneMenu>
+                            </div>
+                        </div>
+                        <div class="ui-g">
+                            <div class="ui-g-12 ui-md-6 ui-lg-4">
+                                <p:outputLabel value="Zone:"/>
+                            </div>
+                            <div class="ui-g-12 ui-md-6 ui-lg-7 ui-fluid">
+                                <p:selectOneMenu value="#{plantEntryFormMB.updatePlant.zone}" style="background-color: white">
+                                    <f:selectItem itemLabel="Select Zone" itemValue="" noSelectionOption="true" />
+                                    <f:selectItems value="#{globalDropDownList.codeSetupZoneList}" var="zone" itemLabel="#{zone.codeSetupName}" itemValue="#{zone.codeSetupId}"/>
+                                </p:selectOneMenu>
+                            </div>
+                        </div>
+                        <div class="ui-g-12 ui-md-12 ui-lg-12 ui-fluid">
+                            <div class="ui-g-12 ui-md-6 ui-lg-4" ></div>
+                            <div class="ui-g-12 ui-md-6 ui-lg-3" > 
+                                <p:commandButton value="Update" id="EditButtonId" ajax="true"  
+                                                 oncomplete="PF('plant_detail').hide();PF('plantTable').filter();"
+                                                 actionListener="#{plantEntryFormMB.updatePlantInfo}"
+                                                 update="plant_datatable_form:plantTable,plant_entry_form"
+                                                 styleClass="btn-primary fa fa-save" />
+                            </div>
+                            <div class="ui-g-12 ui-md-6 ui-lg-3" >  
+                                <p:commandButton immediate="true" id="cancelEditButtonId" value="Cancel"
+                                                 styleClass="btn-info fa fa-undo"
+                                                 onclick="PF('plant_detail').hide();"/>  
+                            </div>
+
+                        </div>
+                    </h:form>  
+                </p:dialog>
+                <p:confirmDialog style="position: fixed " global="true" showEffect="fade" hideEffect="fade" styleClass="box-danger">
+                    <p:commandButton value="Yes" type="button" styleClass="btn-primary ui-confirmdialog-yes"
+                                     icon="fa fa-check"/>
+                    <p:commandButton value="No" type="button" styleClass="btn-danger ui-confirmdialog-no"
+                                     icon="fa fa-close"/>
+                </p:confirmDialog>
+
+            </div>
+        </div>
+    </ui:define>
+</ui:composition>

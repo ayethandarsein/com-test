@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:h="http://xmlns.jcp.org/jsf/html">
+
+    <ul class="nav navbar-nav">
+        <h:panelGroup rendered="#{menuMB.admin_render}">
+            <li>
+                <p:link outcome="/view/admin/user/CompetitorUserDataTable.xhtml" onclick="clearBreadCrumbs()">
+                    <i class="fa fa-user" aria-hidden="true"></i>
+                    <span>User Registration</span>
+
+                </p:link>
+            </li>
+        </h:panelGroup>
+        <h:panelGroup rendered="#{menuMB.mk_render}">
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dashboard<span
+                        class="caret"></span>
+                    <i class="fa fa-dashboard"></i>
+                </a>
+
+                <ul class="dropdown-menu" role="menu">
+                    <li>
+                        <p:link outcome="/view/marketing/map/DashboardMap.xhtml" onclick="clearBreadCrumbs()">
+                            <i class="fa fa-dashboard"></i>
+                            <span>Main</span>
+                        </p:link>
+                    </li>
+                    <li>
+                        <p:link outcome="/view/marketing/map/SingaporeMapPage.xhtml" onclick="clearBreadCrumbs()">
+                            <i class="fa fa-map"></i>
+                            <span>Map</span>
+                        </p:link>
+                    </li>
+                </ul>
+            </li>
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Entry <span
+                        class="caret"></span>
+                    <i class="fa fa-th-list"></i>
+                </a>
+
+                <ul class="dropdown-menu multi-level" role="menu">
+                    <li class="dropdown-submenu">
+                        <a tabindex="-1" href="#">
+                            <span>Code Setup</span>
+                            <i class="fa fa-th-list"></i>
+                        </a>
+                        <ul class="dropdown-menu">
+
+                            <li>
+                                <p:link outcome="/view/marketing/company/CompanyEntryForm.xhtml" onclick="clearBreadCrumbs()">
+                                    <i class="fa fa-bank"></i>
+                                    <span>Company</span>
+                                </p:link>
+                            </li>
+                            <li>
+                                <p:link outcome="/view/marketing/location/LocationEntryForm.xhtml" onclick="clearBreadCrumbs()">
+                                    <i class="fa fa-map-marker"></i>
+                                    <span>Location</span>
+                                </p:link>
+                            </li>
+                            <li>
+                                <p:link outcome="/view/marketing/capability/CapabilityEntryForm.xhtml" onclick="clearBreadCrumbs()">
+                                    <i class="fa fa-database"></i>
+                                    <span>Capability</span>
+                                </p:link>
+                            </li>
+                            <li>
+                                <p:link outcome="/view/marketing/plant/PlantEntryForm.xhtml" onclick="clearBreadCrumbs()">
+                                    <i class="fa fa-navicon"></i>
+                                    <span>Plant Master</span>
+                                </p:link>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="dropdown-submenu">
+                        <a tabindex="-1" href="#">
+                            <span>Data Entry</span>
+                            <i class="fa fa-th-list"></i>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <p:link outcome="/view/marketing/competitor/CompetitorEntryForm.xhtml" onclick="clearBreadCrumbs()">
+                                    <i class="fa fa-plus"></i>
+                                    <span>Plant Details</span>
+                                </p:link>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+
+            </li>
+            <li>
+                <p:link outcome="/view/marketing/chart/CompanyChart.xhtml" onclick="clearBreadCrumbs()">
+                    <i class="fa fa-pie-chart" aria-hidden="true"></i>
+                    <span>Chart</span>
+
+                </p:link>
+            </li>
+
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Search &amp; Reports<span
+                        class="caret"></span>
+                    <i class="fa fa-search"></i>
+                </a>
+
+                <ul class="dropdown-menu multi-level" role="menu">
+                    <li>
+                        <p:link outcome="/view/marketing/search/searchpage.xhtml" onclick="clearBreadCrumbs()">
+                            <i class="fa fa-search" aria-hidden="true"></i>
+                            <span>Search</span>
+
+                        </p:link>
+                    </li>
+
+                    <li class="dropdown-submenu">
+                        <a tabindex="-1" href="#">
+                            <span>Reports</span>
+                            <i class="fa fa-server"></i>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <p:link outcome="/view/marketing/report/overall_summary.xhtml" onclick="clearBreadCrumbs()">
+                                    <i class="fa fa fa-file-o"></i>
+                                    <span>Summary</span>
+                                </p:link>
+                            </li>
+                            <li>
+                                <p:link outcome="/view/marketing/report/report_w_graph.xhtml" onclick="clearBreadCrumbs()">
+                                    <i class="fa fa-bar-chart"></i>
+                                    <span>With Graph</span>
+                                </p:link>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+        </h:panelGroup>
+
+    </ul>
+
+</ui:composition>

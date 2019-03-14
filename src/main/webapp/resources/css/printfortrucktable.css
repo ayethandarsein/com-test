@@ -1,0 +1,27 @@
+.noprintfortrucktable{
+    display: none!important;
+}
+@media print {
+    @page {
+        size: portrait;
+    }
+    div[id="charthaha:truckandcapacity"] thead {
+        display:none!important;
+    }
+    .show{
+        display: block!important;
+    }
+    .nevershowfortruckbtn{
+        display: none!important; 
+    }
+
+    .nevershowtrucktable{
+        display: none!important; 
+    }
+    .noprintfortrucktable{
+        display: block!important;
+    }
+    header nav, footer {
+        display: none!important;
+    }
+}

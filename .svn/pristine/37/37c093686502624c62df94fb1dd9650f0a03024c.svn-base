@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:task="http://www.springframework.org/schema/task"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+        
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+          http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+          http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd 
+          http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd 
+          http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
+    
+    <bean id="messageSource"
+          class="org.springframework.context.support.ResourceBundleMessageSource">
+        <property name="basenames">
+            <list>
+                <value>springCustomErrorMsg</value>
+            </list>
+        </property>
+    </bean>
+    <bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping"/>
+
+    <bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter"/>
+    <bean id="DataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">  
+        <property name="driverClassName" value="com.microsoft.sqlserver.jdbc.SQLServerDriver" />  
+        <property name="url" value="jdbc:sqlserver://ACEBI3017\ACEBI30317:1433;databaseName=CompetitorInformation" />  
+        <property name="username" value="sa" />  
+        <property name="password" value="sa123" />  
+    </bean>  
+          
+    <!-- Session Factory Declaration -->  
+    <bean id="SessionFactory"  
+          class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">  
+        <property name="dataSource" ref="DataSource" />  
+        <property name="annotatedClasses">  
+            <list>
+                <value>com.panu.competitor.information.pojo.entity.Capabilities</value>
+                <value>com.panu.competitor.information.pojo.entity.Company</value>
+                <value>com.panu.competitor.information.pojo.entity.CompetitorInformation</value>
+                <value>com.panu.competitor.information.pojo.entity.CompetitorInformationDetail</value>
+                <value>com.panu.competitor.information.pojo.entity.LegalIssue</value>
+                <value>com.panu.competitor.information.pojo.entity.Plant</value>
+                <value>com.panu.competitor.information.pojo.entity.AppSetting</value>
+                <value>com.panu.competitor.information.pojo.entity.CodeSetup</value>
+                <value>com.panu.competitor.information.pojo.entity.Role</value>
+                <value>com.panu.competitor.information.pojo.entity.CompetitorUser</value>
+            </list>  
+        </property>  
+        <property name="hibernateProperties">  
+            <props>  
+                <prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</prop>  
+                <prop key="hibernate.show_sql">true</prop>  
+                <prop key="hibernate.connection.pool_size">10</prop>  
+                <prop key="show_sql">true</prop>  
+                <prop key="hibernate.current_session_context_class">thread</prop>  
+            </props>  
+        </property>  
+    </bean>          
+    <!-- Enable the configuration of transactional behavior based on annotations -->  
+    <tx:annotation-driven transaction-manager="txManager" />  
+  
+    <!-- Transaction Manager is defined -->     
+    <bean id="txManager"  class="org.springframework.orm.hibernate5.HibernateTransactionManager">  
+        <property name="sessionFactory" ref="SessionFactory" />  
+    </bean>     
+    <context:component-scan base-package="com.panu" />
+</beans>

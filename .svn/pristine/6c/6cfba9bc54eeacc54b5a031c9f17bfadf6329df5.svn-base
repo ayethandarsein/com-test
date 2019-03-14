@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:adm="http://github.com/adminfaces"
+                template="#{layoutMB.template}">
+
+    <f:metadata>
+        <f:viewAction action="#{menuMB.init()}"></f:viewAction>
+    </f:metadata>
+    <ui:define name="head-end">
+
+
+        <h:outputStylesheet library="css" name="company_form.css"/> 
+        <style type="text/css">
+
+            .ui-datatable .ui-datatable-header {
+                text-align: right !important;
+            }
+
+            div.ui-dialog-titlebar.ui-dialog-titlebar.ui-widget-header{
+                background-color:  #ecf0f5!important;
+            }
+
+            .content{
+
+            }
+            .content-header{
+
+            }
+
+            /*            .ui-lg-3{
+                            width: 26%!important;
+                        }*/
+        </style>
+    </ui:define>
+
+    <ui:define name="title">
+        Company Form
+    </ui:define>
+
+    <ui:define name="description">
+
+    </ui:define>
+    <ui:define name="body">
+        <div class="box box-primary"  style="border:white">
+            <div class="box-header with-border">
+
+                <h:form enctype="multipart/form-data" id="company_entry_form" onkeypress="if (event.keyCode === 13) {
+                            return false;
+                        }">
+                    <p:panel style="-moz-border-radius: 25px!important;-webkit-border-radius: 25px!important;">
+                        <p:spacer width="1"/>
+                        <div class="ui-g">
+                            <div class="ui-g-12 ui-md-12 ui-lg-12">
+                                <div class="ui-g-12 ui-md-6 ui-lg-6">
+                                    <div class="ui-g-12 ui-md-12 ui-lg-5" align="right">
+                                        <p:outputLabel value="Company Name:"/>
+                                    </div>
+                                    <div class="ui-g-12 ui-md-12 ui-lg-6 ui-fluid">
+                                        <p:inputText id="companyno" requiredMessage="#{companyEntryFormMB.companyCodeRequiredMessage}" value="#{companyEntryFormMB.updateCompany.companyCode}" required="true"/>
+                                    </div>
+                                    <div class="ui-g-12 ui-md-12 ui-lg-1">
+                                        <p:message id="companyicon" for="companyno" display="icon" showDetail="true"/>
+                                    </div>
+                                </div>
+                                <div class="ui-g-12 ui-md-6 ui-lg-6">
+                                    <div class="ui-g-12 ui-md-12 ui-lg-3" align="right">
+                                        <p:outputLabel value="Company Short Name:"/>
+                                    </div>
+                                    <div class="ui-g-12 ui-md-12 ui-lg-6 ui-fluid">
+                                        <p:inputText id="companyname" requiredMessage="#{companyEntryFormMB.companyNameRequiredMessage}" value="#{companyEntryFormMB.updateCompany.name}" required="true"/>
+                                    </div>
+                                    <div class="ui-g-12 ui-md-12 ui-lg-1">
+                                        <p:message id="companynameicon" for="companyname" display="icon" showDetail="true"/>
+                                    </div>
+                                </div>
+
+                                <div class="ui-g-12 ui-md-9 ui-lg-6">
+                                    <div class="ui-g-12 ui-md-12 ui-lg-5" align="right">
+                                        <p:outputLabel value="Legal Issue Description:"/>
+                                    </div>
+                                    <div class="ui-g-12 ui-md-12 ui-lg-6 ui-fluid">
+                                        <p:inputTextarea value="#{companyEntryFormMB.updateCompany.legalIssueDescription}"/>
+                                    </div>
+                                </div>
+                                <div class="ui-g-12 ui-md-3 ui-lg-6">
+                                    <div class="ui-g-12 ui-md-12 ui-lg-3" align="right">
+                                        <p:outputLabel value="Add Legal Issue:"/>
+                                    </div>
+                                    <div class="ui-g-12 ui-md-12 ui-lg-3">
+                                        <p:commandButton icon="fa fa-edit" id="editDeptBtn" onclick="PF('legal_issue_dialog').show()" 
+                                                         ajax="true"  styleClass="btn-success"/>
+                                    </div>
+                                </div>
+                                <div class="ui-g-12"/>
+                                <div class="ui-g-12 ui-md-1 ui-lg-6">
+                                    <div class="ui-g-12 ui-md-12 ui-lg-5" align="right">
+                                        <p:outputLabel value="Color:"/>
+                                    </div>
+                                    <div class="ui-g-12 ui-md-12 ui-lg-1">
+                                        <p:colorPicker requiredMessage="#{companyEntryFormMB.companyColorRequiredMessage}" id="colorpicker" value="#{companyEntryFormMB.updateCompany.color}" required="true">
+                                        </p:colorPicker>
+                                    </div>
+                                    <div class="ui-g-12 ui-md-12 ui-lg-1">
+                                        <p:message id="coloricon" for="colorpicker" display="icon" showDetail="true"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <p:separator style="display:none"/>
+                        <div class="ui-g ui-fluid" id="buttons">
+                            <div class="ui-g-12 ui-md-8 ui-lg-4"></div>
+                            <div class="ui-g-12 ui-md-4 ui-lg-3">
+                                <div class="ui-g-12 ui-md-6 ui-lg-6 ui-fluid">
+                                    <p:commandButton value="Update" styleClass="btn-primary fa fa-save" ajax="true"
+                                                     id="addBtn"
+                                                     action="#{companyEntryFormMB.updateCompanyInfo()}" 
+                                                     update="company_entry_form"
+                                                     oncomplete="PF('companyTable').filter();"/>
+                                </div>
+                                <div class="ui-g-12 ui-md-6 ui-lg-6 ui-fluid">
+                                    <p:commandButton value="Back"  styleClass="btn-info fa fa-undo" action="/view/marketing/company/CompanyEntryForm.xhtml?faces-redirect=true">
+                                    </p:commandButton>
+                                </div>
+                            </div>
+                        </div>
+                    </p:panel>
+                </h:form>
+                <p:separator />
+                <p:confirmDialog style="position: fixed " global="true" showEffect="fade" hideEffect="fade" styleClass="box-danger">
+                    <p:commandButton value="Yes" type="button" styleClass="btn-primary ui-confirmdialog-yes"
+                                     icon="fa fa-check"/>
+                    <p:commandButton value="No" type="button" styleClass="btn-danger ui-confirmdialog-no"
+                                     icon="fa fa-close"/>
+                </p:confirmDialog>
+                <p:dialog id="legal_issue_dialog" header="Legal Issues" widgetVar="legal_issue_dialog" fitViewport="true" appendTo="@(body)" modal="true" 
+                          resizable="false" draggable="false"  positionType="absolute"
+                          closeOnEscape="true">
+                    <h:form id="legal_issue_form">
+                        <div class =" ui-g">
+                            <div class="ui-g-12">
+                                <p:commandButton value="Add new" action="#{companyEntryFormMB.onAddNewUpdateLegalIssue()}" styleClass="btn btn-primary fa fa-plus" process="@this"
+                                                 oncomplete="PF('legal_issue_table').addRow();" />
+                            </div>
+                        </div>
+                        <p:spacer width="10"/>
+                        <p:dataTable value="#{companyEntryFormMB.updateLegalIssueList}" var="legalissue" paginator="true" paginatorPosition="bottom" tableStyle="table-layout:auto"
+                                     editable="true" editMode="cell" widgetVar="legal_issue_table" id="legal_issue_table" emptyMessage="">
+                            <p:column headerText="Company">
+                                <p:cellEditor>
+                                    <f:facet name="output">
+                                        <h:outputText value="#{legalissue.company}">
+                                        </h:outputText>
+                                    </f:facet>
+                                    <f:facet name="input">
+                                        <p:inputText value="#{legalissue.company}"/>
+                                    </f:facet>
+                                </p:cellEditor>
+                            </p:column>
+                            <p:column headerText="Year Of Lodge">
+                                <p:cellEditor>
+                                    <f:facet name="output">
+                                        <h:outputText value="#{legalissue.yearOfLodge}">
+                                        </h:outputText>
+                                    </f:facet>
+                                    <f:facet name="input">
+                                        <p:inputNumber padControl="false" minValue="0" maxValue="9999" value="#{legalissue.yearOfLodge}"  thousandSeparator=""/>
+                                    </f:facet>
+                                </p:cellEditor>
+                            </p:column>
+                            <p:column headerText="Court Type">
+                                <p:cellEditor>
+                                    <f:facet name="output">
+                                        <h:outputText value="#{legalissue.courtType}">
+                                        </h:outputText>
+                                    </f:facet>
+                                    <f:facet name="input">
+                                        <p:inputText value="#{legalissue.courtType}"/>
+                                    </f:facet>
+                                </p:cellEditor>
+                            </p:column>
+                            <p:column headerText="Delete">
+                                <p:commandButton  icon="fa fa-trash" update="legal_issue_table" styleClass="btn-danger" style=" display: block; margin: 0 auto;" immediate="true" action="#{companyEntryFormMB.removeUpdateLegalIssue(legalissue)}">
+
+                                </p:commandButton>
+                            </p:column>
+                        </p:dataTable>
+                    </h:form>
+                </p:dialog>
+                <p:spacer height="10"/>
+
+            </div>
+        </div>
+    </ui:define>
+</ui:composition>

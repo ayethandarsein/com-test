@@ -1,0 +1,401 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.panu.competitor.information.controller.bean;
+
+import com.panu.competitor.information.common.ConstantCommon;
+import com.panu.competitor.information.common.CurrentLoggedInUser;
+import com.panu.competitor.information.common.InformationMessages;
+import com.panu.competitor.information.common.MessagesCommon;
+import com.panu.competitor.information.exception.CompetitorException;
+import com.panu.competitor.information.pojo.entity.CompetitorUser;
+import com.panu.competitor.information.spring.service.ICompetitorUserService;
+import com.panu.competitor.information.spring.service.IRoleService;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import javax.faces.application.FacesMessage;
+import javax.faces.context.FacesContext;
+import javax.inject.Named;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
+/**
+ *
+ * @author HNDK
+ */
+@Named("competitorUserMB")
+public class CompetitorUserMB implements Serializable {
+
+    // <editor-fold desc="variables of the class">
+    @Autowired
+    private IRoleService roleService;
+    @Autowired
+    private ICompetitorUserService userService;
+    private CompetitorUser user;
+    private CompetitorUser updateUser;
+    private CompetitorUser tempUser;
+    private List<CompetitorUser> userList;
+    private List<CompetitorUser> filterUserList;
+    private String title_user_list_name = ConstantCommon.TITLE_USER_LIST_NAME;
+    private String newPassword;
+    private String confirmNewPassword;
+    private boolean renderUpdatePanel;
+    private boolean renderAddPanel;
+    private boolean isUpdateValidation;
+    private String confirmPassword;
+    private String message_new_password_required = MessagesCommon.M0036_NEW_PASSWORD_REQUIERD;
+    private String message_confirm_password_required = MessagesCommon.M0037_CONFIRM_PASSWORD_REQUIERD;
+    private String nameRequiredMessage = MessagesCommon.M0043_USERNAME_REQUIRED;
+    private String fullnameRequiredMessage = MessagesCommon.M0044_FULLNAME_REQUIRED;
+    private String emailRequiredMessage = MessagesCommon.M0045_EMAIL_REQUIRED;
+    private String passwordRequiredMessage = MessagesCommon.M0046_PASSWORD_REQUIRED;
+    Date date = new Date();
+
+    // </editor-fold>
+    /**
+     * initialization
+     *
+     * The purpose of this method is to initialize method of the view
+     *
+     */
+    public void init() {
+        try {
+            reset();
+            userList.addAll(userService.findAllUser());
+            filterUserList.addAll(userList);
+        } catch (DataAccessException ex) {
+
+        }
+    }
+
+    /**
+     * addNewUserRender
+     *
+     * The purpose of this method is to redirect user entry form and rendered
+     * add or update panel
+     *
+     * @return URL string
+     */
+    public String addNewUserRender() {
+        renderUpdatePanel = false;
+        renderAddPanel = true;
+        return "/view/admin/user/CompetitorUserEntryForm.xhtml?faces-redirect=true";
+    }
+
+    /**
+     * changeUser
+     *
+     * The purpose of this method is to redirect user entry form and rendered
+     * add or update panel
+     *
+     * @param user
+     * @return URL string
+     */
+    public String changeUser(CompetitorUser user) {
+        renderAddPanel = false;
+        renderUpdatePanel = true;
+        updateUser = user;
+        return "/view/admin/user/CompetitorUserEntryForm.xhtml?faces-redirect=true";
+    }
+
+    /**
+     * addUser
+     *
+     * The purpose of this method is to add new user to database
+     *
+     * @throws com.panu.competitor.information.exception.CompetitorException
+     */
+    public void addUser() throws CompetitorException {
+        if (!user.getPassword().trim().equals(confirmPassword)) {
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, MessagesCommon.M0038_PASSWORD_MATCHING, " "));
+        } else {
+            try {
+                user.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
+                user.setIsLogin(1);
+                user.setIsDelete(ConstantCommon.STATUS_ISDELETE);
+                user.setCreatedDate(date);
+                user.setCreatedUserId(new CurrentLoggedInUser().getLogInUserId());
+                if (validateUser(user, userList)) {
+                    FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, MessagesCommon.M0042_USERNAME_DUPLICATED, " "));
+                } else {
+                    userService.addUser(user);
+                    confirmPassword = "";
+                    reset();
+                    FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, MessagesCommon.M0040_USER_CREATE_SUCCESSFULLY, " "));
+                }
+            } catch (CompetitorException ex) {
+                FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "", "Message: "));
+            }
+        }
+    }
+
+    /**
+     * updateUser
+     *
+     * The purpose of this method is to update user to database
+     *
+     * @return URL string to user data table
+     * @throws com.panu.competitor.information.exception.CompetitorException
+     */
+    public String updateCompetitorUser() throws CompetitorException {
+
+        try {
+            isUpdateValidation = true;
+            updateUser.setUpdatedDate(date);
+            updateUser.setUpdatedUserId(new CurrentLoggedInUser().getLogInUserId());
+            if (validateUser(updateUser, userList)) {
+                FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, MessagesCommon.M0042_USERNAME_DUPLICATED, " "));
+            } else {
+                userService.updateUser(updateUser);
+                reset();
+                FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, MessagesCommon.M0040_USER_CREATE_SUCCESSFULLY, " "));
+                return "/view/admin/user/CompetitorUserDataTable.xhtml?faces-redirect=true";
+            }
+        } catch (CompetitorException ex) {
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "", "Message: "));
+        }
+        return "";
+    }
+
+    /**
+     * deleteUser
+     *
+     * The purpose of this method is to update delete flag to the database true
+     *
+     * @param user
+     * @throws com.panu.competitor.information.exception.CompetitorException
+     */
+    public void deleteUser(CompetitorUser user) throws CompetitorException {
+        try {
+            if (user.getRoleId() != userService.findUserByUserRole(ConstantCommon.ADMIN_ROLE_ID).getRoleId()) {
+                user.setIsDelete(ConstantCommon.STATUS_DELETE);
+                user.setUpdatedDate(date);
+                user.setUpdatedUserId(new CurrentLoggedInUser().getLogInUserId());
+                userService.updateUser(user);
+                init();
+                new InformationMessages().showMessageDialog(FacesMessage.SEVERITY_INFO, MessagesCommon.M0034_USER_INFORMATION, MessagesCommon.M0035_USER_DELETE_SUCCESSFULLY);
+            }
+            else{
+                new InformationMessages().showMessageDialog(FacesMessage.SEVERITY_INFO, MessagesCommon.M0034_USER_INFORMATION, MessagesCommon.M0050_USER_CANNOT_DELETE_ADMIN);
+            }
+        } catch (CompetitorException ex) {
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "", "Message: "));
+        }
+    }
+
+    /**
+     * resetPassword
+     *
+     * The purpose of this method is to update user password
+     *
+     * @throws com.panu.competitor.information.exception.CompetitorException
+     */
+    public void resetPassword() throws CompetitorException {
+        if (!newPassword.equals(confirmNewPassword)) {
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, MessagesCommon.M0038_PASSWORD_MATCHING, " "));
+        } else {
+            try {
+                tempUser = userService.findUserByUserId(updateUser.getUserId());
+                tempUser.setPassword(new BCryptPasswordEncoder().encode(newPassword));
+                tempUser.setUpdatedDate(date);
+                tempUser.setUpdatedUserId(new CurrentLoggedInUser().getLogInUserId());
+                userService.updateUser(tempUser);
+                reset();
+                FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, MessagesCommon.M0041_PASSWORD_CHANGE_SUCCESSFULLY, " "));
+            } catch (DataAccessException ex) {
+                FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "", "Message: "));
+            }
+        }
+    }
+
+    /**
+     * validateUser
+     *
+     * The purpose of this method is to validate user info
+     *
+     * @param user
+     * @param userList
+     * @return
+     */
+    public boolean validateUser(CompetitorUser user, List<CompetitorUser> userList) {
+        if (isUpdateValidation) {
+            userList.remove(user);
+        }
+        return userService.validateUserInfo(user, userList);
+    }
+
+    /**
+     * cancel
+     *
+     * The purpose of this method is to redirect to user list
+     *
+     * @return
+     */
+    public String cancel() {
+        return "/view/admin/user/CompetitorUserDataTable.xhtml?faces-redirect=true";
+    }
+
+    /**
+     * getRoleNameByRoleId
+     *
+     * The purpose of this method is to get role name by role id
+     *
+     * @param roleId
+     * @return role name string
+     */
+    public String getRoleNameByRoleId(int roleId) {
+        String rolename;
+        rolename = roleService.findRoleByRoleId(roleId).getRoleName();
+        return rolename;
+    }
+
+    /**
+     * reset
+     *
+     * The purpose of this method is to reset bean variables
+     *
+     */
+    public void reset() {
+        user = new CompetitorUser();
+        updateUser = new CompetitorUser();
+        tempUser = new CompetitorUser();
+        isUpdateValidation = false;
+        userList = new ArrayList<>();
+        filterUserList = new ArrayList<>();
+    }
+    // <editor-fold desc="getter and setter of the class">
+
+    public List<CompetitorUser> getUserList() {
+        return userList;
+    }
+
+    public void setUserList(List<CompetitorUser> userList) {
+        this.userList = userList;
+    }
+
+    public String getNameRequiredMessage() {
+        return nameRequiredMessage;
+    }
+
+    public void setNameRequiredMessage(String nameRequiredMessage) {
+        this.nameRequiredMessage = nameRequiredMessage;
+    }
+
+    public String getFullnameRequiredMessage() {
+        return fullnameRequiredMessage;
+    }
+
+    public void setFullnameRequiredMessage(String fullnameRequiredMessage) {
+        this.fullnameRequiredMessage = fullnameRequiredMessage;
+    }
+
+    public String getEmailRequiredMessage() {
+        return emailRequiredMessage;
+    }
+
+    public void setEmailRequiredMessage(String emailRequiredMessage) {
+        this.emailRequiredMessage = emailRequiredMessage;
+    }
+
+    public String getMessage_new_password_required() {
+        return message_new_password_required;
+    }
+
+    public void setMessage_new_password_required(String message_new_password_required) {
+        this.message_new_password_required = message_new_password_required;
+    }
+
+    public String getMessage_confirm_password_required() {
+        return message_confirm_password_required;
+    }
+
+    public void setMessage_confirm_password_required(String message_confirm_password_required) {
+        this.message_confirm_password_required = message_confirm_password_required;
+    }
+
+    public CompetitorUser getUpdateUser() {
+        return updateUser;
+    }
+
+    public void setUpdateUser(CompetitorUser updateUser) {
+        this.updateUser = updateUser;
+    }
+
+    public String getNewPassword() {
+        return newPassword;
+    }
+
+    public void setNewPassword(String newPassword) {
+        this.newPassword = newPassword;
+    }
+
+    public String getConfirmNewPassword() {
+        return confirmNewPassword;
+    }
+
+    public void setConfirmNewPassword(String confirmNewPassword) {
+        this.confirmNewPassword = confirmNewPassword;
+    }
+
+    public String getConfirmPassword() {
+        return confirmPassword;
+    }
+
+    public void setConfirmPassword(String confirmPasword) {
+        this.confirmPassword = confirmPasword;
+    }
+
+    public String getTitle_user_list_name() {
+        return title_user_list_name;
+    }
+
+    public void setTitle_user_list_name(String title_user_list_name) {
+        this.title_user_list_name = title_user_list_name;
+    }
+
+    public CompetitorUser getUser() {
+        return user;
+    }
+
+    public void setUser(CompetitorUser user) {
+        this.user = user;
+    }
+
+    public String getPasswordRequiredMessage() {
+        return passwordRequiredMessage;
+    }
+
+    public void setPasswordRequiredMessage(String passwordRequiredMessage) {
+        this.passwordRequiredMessage = passwordRequiredMessage;
+    }
+
+    public boolean isRenderUpdatePanel() {
+        return renderUpdatePanel;
+    }
+
+    public void setRenderUpdatePanel(boolean renderUpdatePanel) {
+        this.renderUpdatePanel = renderUpdatePanel;
+    }
+
+    public boolean isRenderAddPanel() {
+        return renderAddPanel;
+    }
+
+    public void setRenderAddPanel(boolean renderAddPanel) {
+        this.renderAddPanel = renderAddPanel;
+    }
+
+    public List<CompetitorUser> getFilterUserList() {
+        return filterUserList;
+    }
+
+    public void setFilterUserList(List<CompetitorUser> filterUserList) {
+        this.filterUserList = filterUserList;
+    }
+    // </editor-fold>
+}

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:adm="http://github.com/adminfaces"
+                template="#{layoutMB.template}">
+
+    <f:metadata>
+        <f:viewAction action="#{menuMB.init()}"></f:viewAction>
+        <f:viewAction action="#{singaporeMapMB.init()}"></f:viewAction>
+    </f:metadata>
+    <ui:define name="head-end">
+        <h:outputStylesheet library="css" name="competitor_datatable_style.css"/> 
+        <style type="text/css">
+
+            .ui-datatable-header{
+                margin-bottom: -7px!important;
+            }
+            .ui-datatable.ui-widget{
+                text-align: center!important;
+            }
+        </style>
+    </ui:define>
+
+    <ui:define name="title">
+
+    </ui:define>
+
+    <ui:define name="description">
+
+    </ui:define>
+    <ui:define name="body">
+        <script src="https://maps.google.com/maps/api/js?key=AIzaSyDFN9RS2dKVclKSKoH3vIiQJjtIQmWZqWM" type="text/javascript"></script>
+        <adm:breadcrumb title="Map" link="/view/map/SingaporeMapPage.xhtml"/>
+        <div class="box box-primary" style="border: white">  
+            <div class="box-header with-border">
+                <h:form id="mapform">
+                    <div class="ui-g">
+                        <div class="ui-g-12">
+                            <p:commandButton value="Back" onclick="window.history.back()" styleClass="btn btn-info fa fa-reply"/>
+                        </div>
+                        <div class="ui-g-12 ui-md-12 ui-lg-4 ui-fluid">
+                            <h:outputLabel value="Company"/>
+                            <p:selectCheckboxMenu id="multiple" value="#{singaporeMapMB.companyCodes}" label="Cities" multiple="true"
+                                                  filter="false" >
+                                <p:ajax event="toggleSelect" listener="#{singaporeMapMB.onCompanySelect}" update="alvs"/>
+                                <p:ajax listener="#{singaporeMapMB.onCompanySelect}" update="alvs"/>
+                                <f:selectItems value="#{singaporeMapMB.companyList}" var="company" itemLabel="#{company.companyCode}" itemValue="#{company.companyCode}"/>
+                            </p:selectCheckboxMenu>
+                        </div>
+
+                    </div>
+                    <h:panelGroup id="alvs">
+                        <div class="ui-g">
+                        <div class="ui-g-12 ui-lg-12 ui-md-12">
+                            <p:gmap widgetVar="yourWidgetVar" center="1.290270, 103.851959" zoom="11" type="ROADMAP" style="width:100%;height:600px" model="#{singaporeMapMB.simpleModel}"/>
+                        </div>
+                            <div class="ui-g-12 ui-lg-12 ui-md-12"/>
+                            
+                            <p:repeat id="dataTableLoop" var="icon" value="#{singaporeMapMB.googleMapLegends}">
+                                <div class="ui-g-12 ui-lg-1 ui-md-2">
+                                    <p:graphicImage value="#{icon.icon}"/>  <h:outputText value=" - #{icon.name}"/> 
+                                </div>
+                            </p:repeat>
+                        </div>
+                    </h:panelGroup>
+                </h:form>
+            </div>
+        </div>
+    </ui:define>
+</ui:composition>

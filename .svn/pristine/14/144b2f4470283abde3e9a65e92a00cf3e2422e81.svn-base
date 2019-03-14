@@ -1,0 +1,570 @@
+/*
+ * CompanyEntryFormMB
+ */
+package com.panu.competitor.information.controller.bean;
+
+import com.panu.competitor.information.common.ConstantCommon;
+import com.panu.competitor.information.common.CurrentLoggedInUser;
+import com.panu.competitor.information.common.MessagesCommon;
+import com.panu.competitor.information.common.MessagesView;
+import com.panu.competitor.information.exception.CompetitorException;
+import com.panu.competitor.information.pojo.entity.CodeSetup;
+import com.panu.competitor.information.pojo.entity.Company;
+import com.panu.competitor.information.pojo.entity.LegalIssue;
+import com.panu.competitor.information.spring.service.ICodeSetupService;
+import com.panu.competitor.information.spring.service.ICompanyService;
+import com.panu.competitor.information.spring.service.ILegalIssueService;
+import com.panu.competitor.information.spring.service.IPlantInformationService;
+import java.io.Serializable;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.faces.application.FacesMessage;
+import javax.faces.bean.ViewScoped;
+import javax.faces.context.FacesContext;
+import javax.faces.context.Flash;
+import javax.inject.Named;
+import org.primefaces.context.RequestContext;
+import org.springframework.beans.factory.annotation.Autowired;
+
+/**
+ *
+ * @author HNDK
+ */
+@Named("companyEntryFormMB")
+@ViewScoped
+public class CompanyEntryFormMB implements Serializable {
+
+    // <editor-fold desc="variables of the class">
+    private static final long serialVersionUID = 1L;
+    @Autowired
+    private ICompanyService companyService;
+    @Autowired
+    private ILegalIssueService legalIssueService;
+    @Autowired
+    private ICodeSetupService codeSetupService;
+    @Autowired
+    private IPlantInformationService plantInformationService;
+    private List<Company> companyList;
+    private List<Company> filtercompanies;
+    private List<LegalIssue> legalIssueList;
+    private List<LegalIssue> tempLegalIssueList;
+    private List<LegalIssue> updateLegalIssueList;
+    private List<Integer> legalIssueIdList;
+    private Company company = new Company();
+    private Company updateCompany = new Company();
+    private String tempName;
+    private String tempColor;
+    private String tempCode;
+    private String tempLegalDescription;
+    private String title_company_list_name = ConstantCommon.TITLE_COMPANY_LIST_NAME;
+    private final Date date = new Date();
+    private String duplicateCompanyNameMessage;
+    private String duplicateCompanyColorMessage;
+    private String duplicateCompanyCodeMessage;
+    private String companyNameRequiredMessage;
+    private String companyCodeRequiredMessage;
+    private String companyColorRequiredMessage;
+    private String companyNameEmptyMessage;
+    private String companyColorEmptyMessage;
+    private String companyCodeEmptyMessage;
+    private boolean isUpdateValidation;
+    private String messagetext;
+    FacesContext facesContext;
+    Flash flash;
+    private LegalIssue legalissue;
+
+    private List<CodeSetup> courtTypeList = new ArrayList<CodeSetup>();
+
+    // </editor-fold>
+    /**
+     * Creates a new instance of CompanyEntryFormMB
+     */
+    public CompanyEntryFormMB() {
+    }
+
+    /**
+     * init
+     *
+     * The purpose of this method is to initialize method of the view
+     *
+     */
+    public void init() {
+        this.company = new Company();
+        this.updateCompany = new Company();
+        this.companyList = new ArrayList<>();
+        this.filtercompanies = new ArrayList<>();
+        this.legalIssueList = new ArrayList<>();
+        this.updateLegalIssueList = new ArrayList<>();
+        this.legalIssueIdList = new ArrayList<>();
+        this.tempLegalIssueList = new ArrayList<>();
+        this.legalissue = new LegalIssue();
+        this.companyNameRequiredMessage = MessagesCommon.M0008_COMPANY_NAME_REQUIRED;
+        this.companyCodeRequiredMessage = MessagesCommon.M0009_COMPANY_CODE_REQUIRED;
+        this.companyColorRequiredMessage = MessagesCommon.M0010_COMPANY_COLOR_REQUIRED;
+        company.setColor("");
+        updateCompany.setColor("");
+        companyList.addAll(companyService.findAllCompany());
+        filtercompanies.addAll(companyList);
+        findCourtTypeList();
+    }
+
+    /**
+     * saveCompany
+     *
+     * The purpose of this method is to save new company to the database
+     *
+     * @throws com.panu.competitor.information.exception.CompetitorException
+     */
+    public void saveCompany() throws CompetitorException {
+        try {
+            if (!"".equals(company.getColor())) {
+                messagetext = "";
+                company.setCreatedDate(date);
+                company.setIsDelete(ConstantCommon.STATUS_ISDELETE);
+                company.setCreatedUserId(new CurrentLoggedInUser().getLogInUserId());
+                if (validateCompanyInfo(company, companyList)) {
+                    companyService.addCompany(company);
+                    for (LegalIssue legalIssue : legalIssueList) {
+                        legalIssue.setCompanyId(company.getCompanyId());
+                        legalIssue.setCreatedDate(date);
+                        legalIssue.setCreatedUserId(new CurrentLoggedInUser().getLogInUserId());
+                        legalIssue.setIsDelete(ConstantCommon.STATUS_ISDELETE);
+                        legalIssueService.addLegalIssue(legalIssue);
+                    }
+                    RequestContext.getCurrentInstance().execute("window.scrollTo(0,0);");
+                    FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, MessagesCommon.M0004_COMPANY_SAVE_SUCCESSFULLY, "PrimeFaces rocks!"));
+//                new InformationMessages().showMessageDialog(FacesMessage.SEVERITY_INFO, MessagesCommon.M0005_COMPANY_INFORMATION, MessagesCommon.M0004_COMPANY_SAVE_SUCCESSFULLY);
+                } else {
+                    showWarningMessages();
+                }
+                init();
+            } else {
+                MessagesView.error(MessagesCommon.M0012_COMPANY_COLOR_EMPTY);
+            }
+        } catch (CompetitorException ex) {
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "", "Message: "));
+        }
+    }
+
+    /**
+     * validateCompanyInfo
+     *
+     * The purpose of this method is to validate company
+     *
+     * @param company
+     * @param companyList
+     * @return boolean returnValue
+     */
+    public boolean validateCompanyInfo(Company company, List<Company> companyList) {
+        duplicateCompanyNameMessage = "";
+        duplicateCompanyColorMessage = "";
+        duplicateCompanyCodeMessage = "";
+        companyCodeEmptyMessage = "";
+        companyColorEmptyMessage = "";
+        companyNameEmptyMessage = "";
+        boolean validateValue = true;
+        Map<String, String> validateIds = new HashMap<>();
+        if (!company.getName().trim().isEmpty() && !company.getColor().trim().isEmpty() && !company.getCompanyCode().trim().isEmpty()) {
+            if (isUpdateValidation) {
+                companyList.remove(company);
+                validateIds = companyService.validateCompanyInfo(company, companyList);
+            } else {
+                validateIds = companyService.validateCompanyInfo(company, companyList);
+            }
+            for (Map.Entry<String, String> entrySet : validateIds.entrySet()) {
+                if (entrySet.getKey().equals("Name") && entrySet.getValue().equals("true")) {
+                    duplicateCompanyNameMessage = MessagesCommon.M0001_COMPANY_NAME_DUPLICATE;
+                    validateValue = false;
+                }
+                if (entrySet.getKey().equals("Color") && entrySet.getValue().equals("true")) {
+                    duplicateCompanyColorMessage = MessagesCommon.M0002_COMPANY_COLOR_DUPLICATE;
+                    validateValue = false;
+                }
+                if (entrySet.getKey().equals("CompanyCode") && entrySet.getValue().equals("true")) {
+                    duplicateCompanyCodeMessage = MessagesCommon.M0003_COMPANY_CODE_DUPLICATE;
+                    validateValue = false;
+                }
+            }
+        } else {
+            if (company.getName().trim().isEmpty()) {
+                companyNameEmptyMessage = MessagesCommon.M0011_COMPANY_NAME_EMPTY;
+                validateValue = false;
+            }
+            if (company.getColor().trim().isEmpty()) {
+                companyColorEmptyMessage = MessagesCommon.M0012_COMPANY_COLOR_EMPTY;
+                validateValue = false;
+            }
+            if (company.getCompanyCode().trim().isEmpty()) {
+                companyCodeEmptyMessage = MessagesCommon.M0013_COMPANY_CODE_EMPTY;
+                validateValue = false;
+            }
+        }
+        return validateValue;
+    }
+
+    /**
+     * showWarningMessages
+     *
+     * The purpose of this method is to show warning message to user
+     *
+     */
+    public void showWarningMessages() {
+        String message = "";
+        messagetext = "";
+        if (!duplicateCompanyNameMessage.equals("")) {
+            message += duplicateCompanyNameMessage;
+        }
+        if (!duplicateCompanyColorMessage.equals("")) {
+            message += duplicateCompanyColorMessage;
+        }
+        if (!duplicateCompanyCodeMessage.equals("")) {
+            message += duplicateCompanyCodeMessage;
+        }
+        if (!companyCodeEmptyMessage.equals("")) {
+            message += companyCodeEmptyMessage;
+        }
+        if (!companyColorEmptyMessage.equals("")) {
+            message += companyColorEmptyMessage;
+        }
+        if (!companyNameEmptyMessage.equals("")) {
+            message += companyNameEmptyMessage;
+        }
+        messagetext = message;
+        RequestContext.getCurrentInstance().execute("window.scrollTo(0,0);");
+        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, messagetext, "PrimeFaces rocks!"));
+//        new InformationMessages().showMessageDialog(FacesMessage.SEVERITY_INFO, MessagesCommon.M0005_COMPANY_INFORMATION, messagetext);
+    }
+
+    /**
+     * editCompany
+     *
+     * The purpose of this method is to copy row from data table and place it in
+     * dialog
+     *
+     * @param company
+     * @return
+     * @throws com.panu.competitor.information.exception.CompetitorException
+     */
+    public String editCompany(Company company) throws CompetitorException {
+        if (!"".equals(company.getColor())) {
+            this.updateCompany = company;
+            updateLegalIssueList.addAll(legalIssueService.findLegalIssueListByCompanyId(company.getCompanyId()));
+            tempCode = company.getCompanyCode();
+            tempColor = company.getColor();
+            tempName = company.getName();
+            tempLegalDescription = company.getLegalIssueDescription();
+            return "/view/marketing/company/CompanyUpdateForm.xhtml?faces-redirect=true";
+        } else {
+            MessagesView.error(MessagesCommon.M0012_COMPANY_COLOR_EMPTY);
+            return "";
+        }
+    }
+
+    /**
+     * updateCompanyInfo
+     *
+     * The purpose of this method is to update company info to the database
+     *
+     * @return
+     * @throws com.panu.competitor.information.exception.CompetitorException
+     */
+    public String updateCompanyInfo() throws CompetitorException {
+        messagetext = "";
+        FacesContext facesContext = FacesContext.getCurrentInstance();
+        Flash flash = facesContext.getExternalContext().getFlash();
+        flash.setKeepMessages(true);
+        try {
+            isUpdateValidation = true;
+            if (legalIssueIdList != null && legalIssueIdList.size() > 0) {
+                legalIssueService.removeLegalIssueIdList(legalIssueIdList);
+            }
+            if (updateLegalIssueList != null && updateLegalIssueList.size() > 0) {
+                for (LegalIssue legalIssue : updateLegalIssueList) {
+                    legalIssue.setCompanyId(updateCompany.getCompanyId());
+                    legalIssue.setCreatedDate(date);
+                    legalIssue.setCreatedUserId(new CurrentLoggedInUser().getLogInUserId());
+                    legalIssue.setUpdatedDate(date);
+                    legalIssue.setUpdatedUserId(new CurrentLoggedInUser().getLogInUserId());
+                    legalIssue.setIsDelete(ConstantCommon.STATUS_ISDELETE);
+                    legalIssueService.addLegalIssue(legalIssue);
+                }
+            }
+            if (tempColor.equals(updateCompany.getColor())
+                    && tempName.equals(updateCompany.getName())
+                    && tempCode.equals(updateCompany.getCompanyCode())
+                    && tempLegalDescription.equals(updateCompany.getLegalIssueDescription())) {
+                facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, MessagesCommon.M0007_COMPANY_EDITED_SUCCESSFULLY, "PrimeFaces rocks!"));
+            } else if (validateCompanyInfo(updateCompany, companyList)) {
+                updateCompany.setUpdatedDate(date);
+                updateCompany.setUpdatedUserId(new CurrentLoggedInUser().getLogInUserId());
+                companyService.updateCompany(updateCompany);
+                plantInformationService.updatePlantInfoCompanyName(tempCode, updateCompany.getCompanyCode());
+                facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, MessagesCommon.M0007_COMPANY_EDITED_SUCCESSFULLY, "PrimeFaces rocks!"));
+            } else {
+                showWarningMessages();
+            }
+            init();
+            isUpdateValidation = false;
+            return "/view/marketing/company/CompanyEntryForm.xhtml?faces-redirect=true";
+        } catch (CompetitorException ex) {
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "", "Message: "));
+        }
+        return "";
+    }
+
+    /**
+     * deleteCompany
+     *
+     * The purpose of this method is to update delete flag to the database true
+     *
+     * @param company
+     * @throws com.panu.competitor.information.exception.CompetitorException
+     */
+    public void deleteCompany(Company company) throws CompetitorException {
+        try {
+            messagetext = "";
+            company.setIsDelete(ConstantCommon.STATUS_DELETE);
+            company.setUpdatedDate(date);
+            company.setUpdatedUserId(new CurrentLoggedInUser().getLogInUserId());
+            companyService.updateCompany(company);
+            legalIssueService.deleteLegalIssueByCompanyId(company.getCompanyId());
+            init();
+            RequestContext.getCurrentInstance().execute("window.scrollTo(0,0);");
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, MessagesCommon.M0006_COMPANY_DELETED_SUCCESSFULLY, "PrimeFaces rocks!"));
+//            new InformationMessages().showMessageDialog(FacesMessage.SEVERITY_INFO, MessagesCommon.M0005_COMPANY_INFORMATION, MessagesCommon.M0006_COMPANY_DELETED_SUCCESSFULLY);
+        } catch (CompetitorException ex) {
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "", "Message: "));
+        }
+    }
+
+    /**
+     * reset
+     *
+     * The purpose of this method is to remove data table row from legal issue
+     *
+     * @param legalIssue
+     */
+    public void removeLegalIssue(LegalIssue legalIssue) {
+        legalIssueList.remove(legalIssue);
+    }
+
+    /**
+     * reset
+     *
+     * The purpose of this method is to remove data table row from legal issue
+     *
+     * @param legalIssue
+     */
+    public void removeUpdateLegalIssue(LegalIssue legalIssue) {
+        updateLegalIssueList.remove(legalIssue);
+        if (legalIssue.getLegalIssueId() != 0) {
+            legalIssueIdList.add(legalIssue.getLegalIssueId());
+        }
+    }
+
+    /**
+     * reset
+     *
+     * The purpose of this method is to add new data table row from legal issue
+     */
+    public void onAddNewLegalIssue() {
+        LegalIssue legalIssue = new LegalIssue();
+        int year = Calendar.getInstance().get(Calendar.YEAR);
+        legalIssue.setCompany("company");
+        legalIssue.setYearOfLodge(year);
+        legalIssue.setCourtType("Supreme Court");
+        if (legalIssueIdList.size() <= 10) {
+
+            legalIssueList.add(legalIssue);
+        } else {
+            legalIssueList.remove(legalIssue);
+        }
+    }
+
+    public void bindtoTempUpdateLegalIssues() {
+        updateLegalIssueList.add(legalissue);
+        legalissue = new LegalIssue();
+    }
+
+    public void bindtoTempLegalIssues() {
+        legalIssueList.add(legalissue);
+        legalissue = new LegalIssue();
+    }
+
+    public void showLegalIssues() {
+        Calendar cal = Calendar.getInstance();
+        legalissue = new LegalIssue();
+        legalissue.setYearOfLodge(Integer.parseInt(new SimpleDateFormat(ConstantCommon.FROMAT_DROPDOWN_DATE).format(cal.getTime())));
+    }
+
+    public void resetLegalIssues() {
+        legalissue = new LegalIssue();
+    }
+
+    public void resetUpdateLegalIssues() {
+        if (tempLegalIssueList.size() != updateLegalIssueList.size()) {
+            updateLegalIssueList = new ArrayList<>();
+            for (LegalIssue legalIssue : tempLegalIssueList) {
+                updateLegalIssueList.add(new LegalIssue(legalIssue));
+            }
+        }
+    }
+
+    public void setLegalIssueDialogList() {
+        tempLegalIssueList = new ArrayList<>();
+        tempLegalIssueList.addAll(legalIssueList);
+    }
+
+    /**
+     * reset
+     *
+     * The purpose of this method is to add new data table row from legal issue
+     */
+    public void onAddNewUpdateLegalIssue() {
+        LegalIssue legalIssue = new LegalIssue();
+        legalIssue.setCompany("Company Name");
+        legalIssue.setYearOfLodge(0);
+        legalIssue.setCourtType("court type");
+        updateLegalIssueList.add(legalIssue);
+    }
+
+    /**
+     * reset
+     *
+     * The purpose of this method is to reset the bean variables
+     *
+     */
+    public void reset() {
+        this.company = new Company();
+        this.updateCompany = new Company();
+    }
+
+    // <editor-fold desc="getter and setter of the class">
+    public String getTitle_company_list_name() {
+        return title_company_list_name;
+    }
+
+    public void setTitle_company_list_name(String title_company_list_name) {
+        this.title_company_list_name = title_company_list_name;
+    }
+
+    public List<Company> getCompanyList() {
+        return companyList;
+    }
+
+    public void setCompanyList(List<Company> companyList) {
+        this.companyList = companyList;
+    }
+
+    public String getCompanyNameRequiredMessage() {
+        return companyNameRequiredMessage;
+    }
+
+    public void setCompanyNameRequiredMessage(String companyNameRequiredMessage) {
+        this.companyNameRequiredMessage = companyNameRequiredMessage;
+    }
+
+    public String getCompanyCodeRequiredMessage() {
+        return companyCodeRequiredMessage;
+    }
+
+    public void setCompanyCodeRequiredMessage(String companyCodeRequiredMessage) {
+        this.companyCodeRequiredMessage = companyCodeRequiredMessage;
+    }
+
+    public String getCompanyColorRequiredMessage() {
+        return companyColorRequiredMessage;
+    }
+
+    public void setCompanyColorRequiredMessage(String companyColorRequiredMessage) {
+        this.companyColorRequiredMessage = companyColorRequiredMessage;
+    }
+
+    public List<LegalIssue> getUpdateLegalIssueList() {
+        return updateLegalIssueList;
+    }
+
+    public void setUpdateLegalIssueList(List<LegalIssue> updateLegalIssueList) {
+        this.updateLegalIssueList = updateLegalIssueList;
+    }
+
+    public List<LegalIssue> getLegalIssueList() {
+        return legalIssueList;
+    }
+
+    public void setLegalIssueList(List<LegalIssue> legalIssueList) {
+        this.legalIssueList = legalIssueList;
+    }
+
+    public Company getCompany() {
+        return company;
+    }
+
+    public void setCompany(Company company) {
+        this.company = company;
+    }
+
+    public List<Company> getFiltercompanies() {
+        return filtercompanies;
+    }
+
+    public void setFiltercompanies(List<Company> filtercompanies) {
+        this.filtercompanies = filtercompanies;
+    }
+
+    public String getMessagetext() {
+        return messagetext;
+    }
+
+    public void setMessagetext(String messagetext) {
+        this.messagetext = messagetext;
+    }
+
+    public Company getUpdateCompany() {
+        return updateCompany;
+    }
+
+    public void setUpdateCompany(Company updateCompany) {
+        this.updateCompany = updateCompany;
+    }
+
+    public ICodeSetupService getCodeSetupService() {
+        return codeSetupService;
+    }
+
+    public void setCodeSetupService(ICodeSetupService codeSetupService) {
+        this.codeSetupService = codeSetupService;
+    }
+
+    public LegalIssue getLegalissue() {
+        return legalissue;
+    }
+
+    public void setLegalissue(LegalIssue legalissue) {
+        this.legalissue = legalissue;
+    }
+
+    public List<CodeSetup> getCourtTypeList() {
+        return courtTypeList;
+    }
+
+    public void setCourtTypeList(List<CodeSetup> courtTypeList) {
+        this.courtTypeList = courtTypeList;
+    }
+
+    //to get Court Type List
+    public void findCourtTypeList() {
+        try {
+            courtTypeList = new ArrayList<CodeSetup>();
+            courtTypeList.addAll(getCodeSetupService().findAllCodeSetupByCodeSetupType(ConstantCommon.COURT_CODESETUP_TYPE));
+        } catch (Exception e) {
+        }
+    }
+    // </editor-fold>
+
+}

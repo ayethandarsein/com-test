@@ -1,0 +1,327 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:adm="http://github.com/adminfaces"
+                template="#{layoutMB.template}">
+
+    <f:metadata>
+        <f:viewAction action="#{competitorEntryFormMB.init}"></f:viewAction>
+        <f:viewAction action="#{menuMB.init()}"></f:viewAction>
+    </f:metadata>
+    <ui:define name="head-end">
+
+    </ui:define>
+
+    <ui:define name="title">
+        Plant Information
+    </ui:define>
+
+    <ui:define name="description">
+    </ui:define>
+    <ui:define name="body">
+        <adm:breadcrumb title="Plant Information" link="/view/marketing/competitor/CompetitorEntryForm.xhtml"/>
+        <script src="https://maps.google.com/maps/api/js?key=AIzaSyDFN9RS2dKVclKSKoH3vIiQJjtIQmWZqWM" type="text/javascript"></script>
+        <h:outputStylesheet library="css" name="competitor_datatable_style.css"/>
+        <style type="text/css">
+
+            .ui-datatable .ui-datatable-header {
+                text-align: right !important;
+            }
+            div.ui-dialog-titlebar.ui-dialog-titlebar.ui-widget-header{
+                background-color:  #ecf0f5!important;
+            }
+            span.ui-chkbox-label{
+                font-weight: bold !important;
+            }
+
+
+        </style>
+        <div class="box box-primary" style="border:white">
+            <div class="box-header with-border">
+                <div>
+                    <h:form id="haha" enctype="multipart/form-data">
+                        <p:messages id="msgs" closable="true" style="width:100%">
+
+                        </p:messages>
+                        <p:panel style="-moz-border-radius: 25px!important; -webkit-border-radius: 25px!important;">
+                            <div align="right" class="ui-g">
+                                <p:spacer width="1"/>
+                                <div class="ui-g-12 ui-md-12 ui-lg-12">
+                                    <div class="ui-g-12 ui-md-6 ui-lg-12">
+                                        <div class="ui-g-12 ui-md-12 ui-lg-4" style="margin-top: 0.6em">
+                                            <p:outputLabel value="Company:"/>
+                                        </div>
+                                        <div class="ui-g-12 ui-md-12 ui-lg-3 ui-fluid">
+                                            <div class="ui-g-12 ui-md-12 ui-lg-12">
+                                                <p:focus/>
+                                                <p:selectOneMenu style="background-color: white" required="true" requiredMessage="Company is Required!" id="company_name" value="#{competitorEntryFormMB.competitorInformation.companyName}" filter="false" label="Please Select Company:">
+                                                    <f:selectItem itemLabel="Select Company" itemValue="" noSelectionOption="true" />
+                                                    <p:ajax listener="#{competitorEntryFormMB.onCompanySelect}" process="@form" update="competitor_info_detail,updlg,spangp,dlgofconfirm"/>
+                                                    <f:selectItems value="#{competitorEntryFormMB.companyList}" var="company" itemLabel="#{company.name}" itemValue="#{company.companyCode}"/> 
+                                                </p:selectOneMenu>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="ui-g-12 ui-md-6 ui-lg-12">
+                                        <div class="ui-g-12 ui-md-12 ui-lg-4" style="margin-top: 0.6em">
+                                            <p:outputLabel value="Period:"/>
+                                        </div>
+                                        <div class="ui-g-12 ui-md-6 ui-lg-2 ui-fluid">
+                                            <div class="ui-g-12 ui-md-12 ui-lg-12">
+                                                <p:selectOneMenu style="background-color: white" required="true" requiredMessage="Period is Required!" id="period" value="#{competitorEntryFormMB.period}" filter="true" filterMatchMode="contains" label="Please Select Period:">
+                                                    <f:selectItem itemLabel="Select Period" itemValue="" noSelectionOption="true" />
+                                                    <p:ajax event="itemSelect" listener="#{competitorEntryFormMB.onPeriodSelect}" process="@form" update="competitor_info_detail,updlg,spangp"/>
+                                                    <f:selectItems value="#{globalDropDownList.periodCurrentAndLastFiveList}" var="period" itemLabel="#{period}" itemValue="#{period}"/> 
+                                                </p:selectOneMenu>
+                                            </div>
+                                        </div>
+                                        <div class="ui-g-12 ui-md-6 ui-lg-3 ui-fluid">
+                                            <div class="ui-g-12 ui-md-12 ui-lg-6">
+                                                <p:commandButton value="Copy Period"  styleClass="btn-primary" onclick="PF('dlgofconfirm').show();"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <p:spacer width="10"/>
+                                    <div class="ui-g ui-fluid" id="buttons">
+                                        <div class="ui-g-12 ui-md-8 ui-lg-4"></div>
+                                        <div class="ui-g-12 ui-md-4 ui-lg-3">
+                                            <div class="ui-g-12 ui-md-6 ui-lg-6 ui-fluid">
+                                                <p:commandButton value="Save" styleClass="btn-primary fa fa-save" update="haha,dlgofconfirm" ajax="true" actionListener="#{competitorEntryFormMB.saveCompetitorInfo}" onclick="var d = PF('competitor_info_detail'), c = d.jq.find('td:has(.ui-cell-editor-input:visible)');
+                                                        if (c.length)
+                                                            d.saveCell(c)"/>
+                                            </div>
+                                            <div class="ui-g-12 ui-md-6 ui-lg-6 ui-fluid">
+                                                <p:commandButton value="Reset" styleClass="btn-info fa fa-undo" action="#{competitorEntryFormMB.reset()}" update="haha,spangp,dlgofconfirm"/>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </p:panel>
+
+                        <p:separator />
+                        <h:panelGroup id="spangp">
+                            <span id="spanmsg" style="color: red">#{competitorEntryFormMB.infoMessage}</span>
+                        </h:panelGroup>
+                        <p:dataTable id="competitor_info_detail" widgetVar="competitor_info_detail" styleClass="edittable" value="#{competitorEntryFormMB.competitorInformationDetailList}" var="competitorDetail" paginator="true" paginatorPosition="bottom" reflow="true" tableStyle="table-layout:auto"
+                                     currentPageReportTemplate="[ {startRecord} to {endRecord} of {totalRecords} ]" editable="true" editMode="cell" rows="7"
+                                     paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown} {JumpToPageDropdown}"
+                                     rowKey="#{competitorDetail.competitorDetailId}" rowIndexVar="index">
+                            <p:column headerText="No." style="width:50px;text-align:center">
+                                #{index+1}
+                            </p:column>
+                            <p:column headerText="Plant Name">
+                                <h:outputText value="#{competitorEntryFormMB.getPlantNameById(competitorDetail.plantId)}" />
+                            </p:column>
+                            <p:column headerText="Plant Location">
+                                <h:outputText value="#{competitorEntryFormMB.getLocationNameById(competitorDetail.location)}" />
+                            </p:column>
+                            <p:column headerText="Zone" >
+                                <h:outputText value="#{competitorEntryFormMB.zonetoName(competitorDetail.zone)}" />
+                            </p:column >
+                            <p:column headerText="No. of Trucks">
+                                <p:cellEditor>
+                                    <f:facet name="output">
+                                        <h:outputText value="#{competitorEntryFormMB.integertoString(competitorDetail.noOfTruck)}" >
+                                        </h:outputText>
+                                    </f:facet>
+                                    <f:facet name="input">
+                                        <p:inputNumber padControl="false" thousandSeparator="" value="#{competitorDetail.noOfTruck}" />
+                                    </f:facet>
+                                </p:cellEditor>
+                            </p:column>
+                            <p:column headerText="Capacity (m&lt;sup&gt;3&lt;/sup&gt;/h)">
+                                <p:cellEditor>
+                                    <f:facet name="output">
+                                        <h:outputText value="#{competitorEntryFormMB.integertoString(competitorDetail.plantCapacity)}" >
+                                        </h:outputText>
+                                    </f:facet>
+                                    <f:facet name="input">
+                                        <p:inputNumber padControl="false" thousandSeparator="" value="#{competitorDetail.plantCapacity}" />
+                                    </f:facet>
+                                </p:cellEditor>
+                            </p:column>
+                            <p:column headerText="Volume m&lt;sup&gt;3&lt;/sup&gt; per Month">
+                                <p:cellEditor>
+                                    <f:facet name="output">
+                                        <h:outputText value="#{competitorEntryFormMB.integertoString(competitorDetail.volumePerMonth)}" >
+                                        </h:outputText>
+                                    </f:facet>
+                                    <f:facet name="input">
+                                        <p:inputNumber padControl="false" thousandSeparator="" value="#{competitorDetail.volumePerMonth}" />
+                                    </f:facet>
+                                </p:cellEditor>
+                            </p:column>
+                            <p:column headerText="HDB Approved?">
+                                <p:cellEditor>
+                                    <f:facet name="output">
+                                        <h:outputText value="#{globalDropDownList.showYesOrNo(competitorDetail.hdbapprove)}"/>
+                                    </f:facet>
+                                    <f:facet name="input">
+                                        <p:selectOneMenu value="#{competitorDetail.hdbapprove}">
+                                            <f:selectItem itemLabel="Select One" itemValue="" noSelectionOption="true" />
+                                            <f:selectItem itemLabel="Approved" itemValue="Y" />
+                                            <f:selectItem itemLabel="Not Approved" itemValue="N" />
+                                        </p:selectOneMenu>
+                                    </f:facet>
+                                </p:cellEditor>
+                            </p:column>
+                            <p:column headerText="Lease Period From">
+                                <p:cellEditor>
+                                    <f:facet name="output">
+                                        <h:outputText value="#{globalDropDownList.changeDateFormat(competitorDetail.leasePeriodFromDate)}" />
+                                    </f:facet>
+                                    <f:facet name="input">
+                                        <p:calendar value="#{competitorDetail.leasePeriodFromDate}" placeholder="dd-MMM-yyyy" pattern="dd-MMM-yyyy">
+
+                                        </p:calendar>
+                                    </f:facet>
+                                </p:cellEditor>
+
+                            </p:column>
+                            <p:column headerText="Lease Period To">
+                                <p:cellEditor>
+                                    <f:facet name="output">
+                                        <h:outputText value="#{globalDropDownList.changeDateFormat(competitorDetail.leasePeriodToDate)}" />
+                                    </f:facet>
+                                    <f:facet name="input">
+                                        <p:calendar value="#{competitorDetail.leasePeriodToDate}" placeholder="dd-MMM-yyyy" pattern="dd-MMM-yyyy">
+
+                                        </p:calendar>
+                                    </f:facet>
+                                </p:cellEditor>
+                            </p:column>
+
+                            <p:column headerText="Supported by">
+                                <p:cellEditor>
+                                    <f:facet name="output">
+                                        <h:outputText value="#{competitorDetail.supportedBy}"/>
+                                    </f:facet>
+                                    <f:facet name="input">
+                                        <p:inputText value="#{competitorDetail.supportedBy}"/>
+                                    </f:facet>
+                                </p:cellEditor>
+                            </p:column>
+                            <p:column headerText="Capabilities" > 
+                                <p:cellEditor>
+                                    <f:facet name="output">
+                                        <h:outputText value="#{competitorDetail.capabilities}"/>
+                                    </f:facet>
+                                    <f:facet name="input">
+                                        <p:inputText>
+                                            <p:ajax oncomplete="PF('dialog').show();" listener="#{competitorEntryFormMB.capabilitySelection(index,competitorDetail)}" event="focus" update="haha:msgs,capability_form" />
+                                        </p:inputText>
+                                    </f:facet>
+                                </p:cellEditor>
+                            </p:column>
+
+                            <p:column headerText="Map Location">
+                                <p:commandButton styleClass="btn-success datatablebutton" action="#{competitorEntryFormMB.bindMapData(competitorDetail.plantId)}" update="gmapDialog" style=" display: block; margin: 0 auto;" icon="fa fa-map-marker" oncomplete="PF('gmapDialog').show();"/>
+                            </p:column>
+                            <p:column headerText="Upload" >
+                                <p:commandButton styleClass="btn-primary datatablebutton" update="updlg" action="#{competitorEntryFormMB.bindAttachments(index,competitorDetail)}" style=" display: block; margin: 0 auto;" icon="fa fa-upload" oncomplete="PF('updlg').show();"/>
+                            </p:column>
+                            <p:column headerText="Delete">
+                                <p:commandButton action="#{competitorEntryFormMB.removeCompetitorInfoDetail(competitorDetail)}" update="competitor_info_detail" icon="fa fa-trash" styleClass="btn-danger datatablebutton" style=" display: block; margin: 0 auto;" >
+                                    <p:confirm header="Confirmation" message="Are you sure to Delete?" icon="ui-icon-alert" />
+                                </p:commandButton>
+                            </p:column>
+                        </p:dataTable>
+                        <div class="ui-g-12 ui-md-12 ui-lg-12"/>
+
+                    </h:form>
+                    <p:dialog id="gmapDialog" closeOnEscape="true" widgetVar="gmapDialog" width="625" height="400" modal="true" appendTo="@(body)">
+                        <p:gmap id="gmap" center="#{competitorEntryFormMB.focusLatLong}" zoom="13" type="HYBRID" style="width:100%;height:100%" model="#{competitorEntryFormMB.complexModel}"/>
+                    </p:dialog>
+                    <p:dialog header="Upload Files" id="updlg" resizable="false" responsive="true" closeOnEscape="true" widgetVar="updlg" width="40%" height="40%" modal="true" appendTo="@(body)">
+                        <h:form id="upload_form" enctype="multipart/form-data">
+                            <p:messages id="upmsg" closable="true"/>
+                            <p:spacer width ="20"/>
+                            <p:fileUpload update="upload_form" sizeLimit="10000000"  mode="advanced" auto="true" fileUploadListener="#{competitorEntryFormMB.handleFileUpload}" allowTypes="/(\.|\/)(pdf|doc?g|doc|docx|xls|xlsx|jpg|jpeg|png)$/" />
+                            <p:spacer width ="20"/>
+                            <p:dataTable var="attachment" value="#{competitorEntryFormMB.attachmentFileList}" id="attachmentTable" widgetVar="attachmentTable">
+                                <p:column headerText="File Name" style="width: 400px">
+                                    <h:outputText value="#{attachment.attachedFileName}" />
+                                </p:column>
+                                <p:column headerText="Download">
+                                    <p:commandButton styleClass="btn-primary " ajax="false" icon="fa fa-download" actionListener="#{competitorEntryFormMB.downloadAttachment(attachment)}" style=" display: block; margin: 0 auto;">
+                                        <p:fileDownload value="#{competitorEntryFormMB.file}" />
+                                    </p:commandButton>
+                                </p:column>
+                                <p:column headerText="Delete">
+                                    <p:commandButton styleClass="btn-danger" update="attachmentTable" action="#{competitorEntryFormMB.removeAttachment(attachment)}" icon="fa fa-remove" style=" display: block; margin: 0 auto;"/>
+                                </p:column>
+                            </p:dataTable>
+                            <div class="ui-g">
+                                <div class="ui-g-12 ui-md-6 ui-lg-3 ui-fluid">
+                                    <p:commandButton value="Save" action="#{competitorEntryFormMB.saveAttachment()}" styleClass="btn-success" oncomplete="PF('updlg').hide()"/>
+                                </div>
+                                <div class="ui-g-12 ui-md-6 ui-lg-3 ui-fluid">
+                                    <p:commandButton immediate="true" value="Close" styleClass="btn-danger" onclick="PF('updlg').hide()"/>
+                                </div>
+                            </div>
+                        </h:form>
+                    </p:dialog>
+                    <p:dialog id="dialog" widgetVar="dialog"  
+                              header="Select Capabilities" modal="true"  
+                              hideEffect="explode" appendTo="@(body)"  
+                              resizable="false" draggable="false" positionType="absolute"
+                              closeOnEscape="true" width="40%" height="40%" responsive="true" fitViewport="true"> 
+                        <h:form id="capability_form">
+                            <div class="ui-g">
+                                <div class="ui-g-12 ui-md-6 ui-lg-2">
+                                    <h:outputText value="Capabililties"/>
+                                </div>
+                                <div class="ui-g-12 ui-md-6 ui-lg-10 ui-fluid">
+                                    <p:selectCheckboxMenu id="multiple" value="#{competitorEntryFormMB.capabilityList}" label="Cities" multiple="true"
+                                                          filter="false" panelStyle="width:455px">
+                                        <f:selectItems value="#{competitorEntryFormMB.capabilityIdList}" var="capability" itemLabel="#{capability.shortName}" itemValue="#{capability.shortName}"/>
+                                    </p:selectCheckboxMenu>
+                                </div>
+                                <div class="ui-g-12 ui-md-6 ui-lg-2"/>
+                                <div class="ui-g-12 ui-md-6 ui-lg-3 ui-fluid">
+                                    <p:commandButton value="Select" action="#{competitorEntryFormMB.selectCapabilities}" update="haha:competitor_info_detail" styleClass="btn-success" oncomplete="PF('dialog').hide()"/>
+                                </div>
+                                <div class="ui-g-12 ui-md-6 ui-lg-3 ui-fluid">
+                                    <p:commandButton immediate="true" value="Close" styleClass="btn-danger" onclick="PF('dialog').hide()"/>
+                                </div>
+                            </div>
+                        </h:form>
+                    </p:dialog>
+                    <p:dialog id="dlgofconfirm" widgetVar="dlgofconfirm" modal="true" appendTo="@(body)" resizable="false" draggable="false" positionType="absolute"
+                              closeOnEscape="true" header="Copy from Period">
+                        <h:form id="lolform">
+                            <div class="ui-g-12">
+                                <div class="ui-g-3" style="margin-top: 0.6em"><p:outputLabel id="loldata" value="Copy Period" /></div>
+                                <div class="ui-g-6 ui-fluid">
+                                    <p:selectOneMenu style="background-color: white" required="true" requiredMessage="Company Required" id="period" value="#{competitorEntryFormMB.copyPeriod}" filter="true" label="Please Select Company:">
+                                        <f:selectItem itemLabel="Select Period" itemValue="" noSelectionOption="true" />
+                                        <f:selectItems value="#{globalDropDownList.periodCurrentAndLastFiveList}" var="period" itemLabel="#{period}" itemValue="#{period}"/> 
+                                    </p:selectOneMenu>
+
+                                </div>
+                            </div>
+                            <div class="ui-g-12 ui-fluid">
+                                <div class="ui-g-3"></div>
+                                <div class="ui-g-3 ui-md-3 ui-lg-3">
+                                    <p:commandButton value="Copy" styleClass="btn-primary" process="@form" update="haha:competitor_info_detail,updlg,haha,haha:spangp" actionListener="#{competitorEntryFormMB.copyPeriodInfoDetail()}" onclick="PF('dlgofconfirm').hide()"/>
+                                </div>
+                                <div class="ui-g-3 ui-md-3 ui-lg-3">
+                                    <p:commandButton value="Cancel" styleClass="btn-danger" immediate="true" onclick="PF('dlgofconfirm').hide()"/>
+                                </div>
+                            </div>
+                        </h:form>
+                    </p:dialog>
+                </div>
+            </div>
+        </div>
+        <p:confirmDialog style="position: fixed " global="true" showEffect="fade" hideEffect="fade" styleClass="box-danger">
+            <p:commandButton value="Yes" type="button" styleClass="btn-primary ui-confirmdialog-yes"
+                             icon="fa fa-check"/>
+            <p:commandButton value="No" type="button" styleClass="btn-danger ui-confirmdialog-no"
+                             icon="fa fa-close"/>
+        </p:confirmDialog>
+    </ui:define>
+</ui:composition>

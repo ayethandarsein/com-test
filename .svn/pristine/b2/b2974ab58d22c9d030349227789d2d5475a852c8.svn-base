@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:adm="http://github.com/adminfaces"
+                template="#{layoutMB.template}">
+
+    <f:metadata>
+        <f:viewAction action="#{companyChartMB.initBatchingAndCapacityPie}"></f:viewAction>
+        <f:viewAction action="#{menuMB.init()}"></f:viewAction>
+    </f:metadata>
+    <ui:define name="head-end">
+        <style>
+
+            @media (max-width: 991px){
+                .breadcrumb{
+                    background:  #ecf0f5 !important;
+                }
+            }
+            .sidebar-form{
+                display: none !important;
+            }
+            body{ background-color: ivory; }
+            #canvas{border:1px solid red;}
+            @media ( max-width: 1024px) {
+                #elf{
+                    margin-top: -1em!important;
+                }
+
+            }
+            @media ( max-width: 740px) {
+                #elf{
+                    max-width: 750px!important;
+                    margin: auto!important;
+                    height: 400px!important;
+                    margin: 0 auto!important;
+                }
+
+            }
+            @font-face {
+                font-family: "Calibri";
+                src: url('#{resource["fonts/Calibri.ttf"]}');
+            }
+        </style>
+    </ui:define>
+
+    <ui:define name="title">
+
+    </ui:define>
+    <ui:define name="body">
+        <adm:breadcrumb title="Chart" link="/view/marketing/chart/CompanyChart.xhtml"/>
+        <script src="../../../resources/js/highchart.js" />
+        <script type="text/javascript">
+            //<![CDATA[
+            $(function () {
+                Highcharts.setOptions({
+                    colors: Highcharts.map(#{companyChartMB.color}, function (color) {
+                        return {
+                            radialGradient: {
+                                cx: 0.5,
+                                cy: 0.3,
+                                r: 0.7
+                            },
+                            stops: [
+                                [0, Highcharts.Color(color).brighten(0.6).get('rgb')], // darken
+                                [1, color]
+                            ]
+                        };
+                    })
+                });
+                Highcharts.chart('elf', {
+                    responsive: {
+                        rules: [{
+                                condition: {
+                                    maxWidth: 400
+                                },
+                                chartOptions: {
+                                    title: {
+                                        text: '',
+                                        align: 'center',
+                                        verticalAlign: 'middle',
+                                        y: -50
+                                    },
+                                    plotOptions: {
+                                        pie: {
+                                            showInLegend: true,
+                                            dataLabels: {
+                                                enabled: false,
+                                                style: {
+                                                    fontSize: '7px'
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                }
+                            }
+                        ]
+                    },
+                    chart: {
+                        plotBackgroundColor: null,
+                        plotBorderWidth: 0,
+                        plotShadow: false,
+                        color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black',
+                        backgroundColor: '#f4f4f4',
+                        events: {
+                            load: function () {
+
+                            }
+                        }
+
+                    },
+                    credits: {
+                        enabled: false
+                    },
+                    title: {
+                        style: {
+                            fontSize: '15px',
+                            fontWeight: 'bold'
+                        },
+                        text: '',
+                        align: 'center',
+                        verticalAlign: 'middle',
+                        y: 1
+                    },
+                    tooltip: {
+                        enabled: false,
+                        pointFormat: '{series.name}: <b>{point.y}</b>'
+                    },
+                    plotOptions: {
+                        series: {
+                            cursor: 'pointer',
+                            point: {
+                                events: {
+                                    click: function () {
+                                        document.getElementById("chartform:hiddenid").value = this.id;
+                                        document.getElementById("chartform:companyDetailBtn").click();
+                                    },
+                                    legendItemClick: function () {
+                                        return false; // <== returning false will cancel the default action
+                                    }
+                                }
+                            }
+                        },
+                        pie: {
+                            showInLegend: true,
+                            allowPointSelect: true,
+                            dataLabels: {
+                                useHTML: true,
+                                enabled: true,
+                                overflow: 'none',
+                                distance: -140,
+                                crop: false,
+                                style: {
+                                    fontWeight: 'bold',
+                                    fontSize: '1.2em',
+                                    color: 'white',
+                                    textOutline: false,
+                                    align: 'center',
+                                    whiteSpace: 'pre',
+                                    textalign: 'right'
+                                }
+                            },
+                            startAngle: -180,
+                            endAngle: -180,
+                            center: ['50%', '50%'],
+                            borderWidth: 0,
+                            size: '100%'
+                        }
+
+                    },
+                    series: [{
+                            type: 'pie',
+                            name: #{companyChartMB.seriesName},
+                            innerSize: '20%',
+                            data: #{companyChartMB.data}
+                        }],
+                    //disable the nav export button
+                    exporting: {
+                        enabled: false
+                    }
+                });
+            });
+            //]]>
+        </script>
+        <div class="box box-primary" style="border:white">
+            <div class="box-header with-border">
+                <h:form id="chartform" >
+
+                    <div class="ui-g" style="background-color: #f4f4f4;border-radius: 25px;">
+
+                        <div class="ui-g-12 ui-md-12 ui-lg-12" align="right">
+                            <p:spacer width="5"></p:spacer>
+                            <p:selectOneMenu id="chart_select" value="#{companyChartMB.charttitle}" style="background-color: white;width: 250px"> 
+                                <p:ajax oncomplete="document.getElementById('chartform:btn').click();" listener="#{companyChartMB.onfirstchartChange()}" update="chartform" process="period,@this"/>
+                                <f:selectItems value="#{companyChartMB.filterName}" var="filter" itemLabel="#{filter}" itemValue="#{filter}"/> 
+                            </p:selectOneMenu>
+
+                        </div>
+                        <div class="ui-g-12 ui-md-12 ui-lg-12" align="right">
+                            <p:selectOneMenu id="period" filter="true" filterMatchMode="contains" value="#{companyChartMB.period}" style="background-color: white;width: 250px"> 
+                                <p:ajax oncomplete="document.getElementById('chartform:btn').click();" listener="#{companyChartMB.onPeriodSelect()}" update="chartform" process="chart_select,@this"/>
+                                <f:selectItems value="#{globalDropDownList.periodCurrentAndLastFiveList}" var="period" itemLabel="#{period}" itemValue="#{period}"/> 
+                            </p:selectOneMenu>  
+                        </div>
+                        <div class="ui-g-12 ui-md-12 ui-lg-12">
+
+                            <div id="elf" style="max-width: 750px;
+                                 margin: auto;
+                                 height: 800px;
+                                 margin: 0 auto;margin-top: -8em;"></div>
+
+
+                        </div>
+                        <h:inputHidden id="hiddenid" value="#{companyChartMB.hiddenCompanyId}"/>
+                        <p:commandButton style="display: none" id="companyDetailBtn" ajax="false" action="#{companyChartMB.redirectToDetailChart()}" value="Update"></p:commandButton>
+                        <p:commandButton style="display: none" id="btn" ajax="false" value="Update"></p:commandButton>
+                    </div>
+                </h:form>
+            </div></div>
+    </ui:define>
+</ui:composition>

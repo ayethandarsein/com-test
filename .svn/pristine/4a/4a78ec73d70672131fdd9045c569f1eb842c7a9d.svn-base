@@ -1,0 +1,22 @@
+.noprintplanttable{
+    display: none!important;
+}
+
+@media print {
+    @page {
+        size: portrait;
+    }
+    div[id="charthaha:printPlantTable"] thead {
+        display:none!important;
+    }
+    .nevershowforbtn{
+          display: none!important; 
+    }
+    .nevershowplanttable{
+        display: none!important; 
+    }
+    .noprintplanttable{
+        display: block!important;
+    }
+
+}

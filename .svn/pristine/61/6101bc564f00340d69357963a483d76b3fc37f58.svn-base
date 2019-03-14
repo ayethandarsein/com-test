@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:adm="http://github.com/adminfaces"
+                template="#{layoutMB.template}">
+    <f:metadata>
+        <f:viewAction action="#{menuMB.init()}"></f:viewAction>
+    </f:metadata>
+    <ui:define name="head-end">
+        <h:outputStylesheet library="css" name="style_1.css"/>
+        <style>
+            #adminStatusDialog{
+                display: none!important;
+            }
+        </style>
+        <ui:param name="renderBreadCrumb" value="true"/>
+    </ui:define>
+    <ui:define name="title">
+    </ui:define>
+    <ui:define name="body">
+        <div class="box box-primary" style="border: white;background-color: #ecf0f5;box-shadow: none" >  
+            <div class="box-header with-border" style="border: white;background-color: #ecf0f5">
+                <h:form id="dashboard" enctype="multipart/form-data">
+
+                    <img id="map" src="#{resource['favicon/singapore-1200x753.png']}" style="border: none;
+                         height: auto;margin-left: auto;
+                         margin-right: auto;display: block;
+                         max-width: 100%;
+                         width: auto;" width="1200" height="753" usemap="#Map"/>
+
+                    <map name="Map">
+                        <area shape="poly" coords="299,68,226,112,210,133,171,218,220,232,171,248,132,280,80,417,81,446,65,483,74,512,59,528,68,548,48,590,92,620,75,599,90,559,78,525,104,514,129,501,134,473,150,475,162,449,122,390,135,390,146,404,185,437,189,452,189,462,163,489,199,593,252,547,235,507,246,497,257,532,307,518,365,484,333,448,317,429,289,431,276,438,268,449,262,432,213,446,198,456,213,428,228,419,255,418,266,403,283,418,303,401,324,417,336,420,359,422,385,431,398,432,408,422,410,433,430,454,425,457,407,440,391,457,426,490,437,496,455,470,479,489,489,489,502,498,520,503,517,517,571,562,599,555,621,531,606,512,581,495,561,506,563,513,545,506,533,511,526,496,538,497,535,470,541,461,515,458,496,443,490,419,492,403,469,399,419,347,451,315,419,277,415,231,386,185,411,104,375,90,370,112,360,99,347,67,309,64" 
+                              rel="leanModal" onclick="document.getElementById('dashboard:west').click();" />
+                        <area  rel="leanModal" onclick="document.getElementById('dashboard:north').click();" coords="417,100,430,86,518,23,551,27,543,40,553,38,570,30,579,38,575,50,593,42,624,65,608,64,606,82,628,75,633,90,623,98,638,94,651,108,613,157,593,136,557,171,555,180,535,190,546,234,560,257,542,265,515,296,513,314,541,337,506,406,474,392,432,343,461,312,398,182" 
+                               shape="poly"/>
+                        <area rel="leanModal" onclick="document.getElementById('dashboard:south').click();" coords="609,159,590,143,561,170,559,180,542,193,553,239,564,259,519,297,515,312,539,333,544,338,508,405,505,413,509,440,545,454,542,492,558,497,578,487,598,488,606,498,620,498,623,470,640,484,669,466,640,450,627,461,609,437,620,439,632,434,645,440,654,436,658,411,654,399,664,393,662,381,684,369,648,323,638,314,655,251,681,249,700,207,686,199,701,177,723,157,697,148,679,143,667,130,650,130,644,151,627,171,599,182,595,189,581,186,585,172,572,176,571,170,584,160,598,167" shape="poly"/>
+                        <area rel="leanModal" onclick="document.getElementById('dashboard:northeast').click();" coords="731,145,753,132,777,144,793,135,810,115,843,124,861,141,905,134,915,142,942,137,954,147,999,147,1015,132,1070,107,1108,106,1169,151,1177,160,1167,171,1162,217,1099,248,1062,208,1036,180,1039,157,1019,170,1001,153,950,155,954,166,924,174,912,182,876,193,856,189,836,176,822,159,803,151,797,140,782,151,810,174,803,180,785,169,773,156,766,161,786,179,769,212,743,219,743,227,728,230,742,239,778,204,804,188,814,186,824,206,835,208,849,222,884,220,897,212,926,233,930,242,894,271,902,283,879,297,876,311,861,314,813,313,802,335,792,339,803,354,798,364,754,367,729,322,721,305,702,295,683,277,681,256,703,215,709,200,711,182,726,180,734,152" shape="poly"/>
+                        <area rel="leanModal"  onclick="document.getElementById('dashboard:east').click();" coords="680,251,658,257,645,298,643,310,683,364,686,371,675,375,666,384,670,403,674,413,683,415,693,408,695,416,685,421,672,421,659,423,675,452,718,427,804,406,893,378,933,386,976,388,990,379,1021,385,1025,371,1040,376,1042,356,1008,357,1022,331,1028,302,1045,305,1049,297,1036,293,1047,283,1058,288,1017,262,997,259,980,259,984,244,960,210,939,199,911,212,927,238,927,245,899,268,897,279,910,287,904,292,886,297,874,313,866,319,815,316,815,323,807,329,798,339,801,364,760,366,738,335,715,316,712,302,698,301,675,279,677,261" shape="poly"/>
+                    </map>
+                    <p:commandButton id="north" action="#{dashBoardMapMB.northMapClick}" style="display: none"/>
+                    <p:commandButton id="northeast" action="#{dashBoardMapMB.northEastMapClick}" style="display: none"/>
+                    <p:commandButton id="east" action="#{dashBoardMapMB.eastMapClick}" style="display: none"/>
+                    <p:commandButton id="south" action="#{dashBoardMapMB.southMapClick}" style="display: none"/>
+                    <p:commandButton id="west" action="#{dashBoardMapMB.westMapClick}" style="display: none"/>
+                </h:form>
+            </div>
+        </div>
+        <script src="../../../resources/js/jquery.rwdImageMaps.min.js" type="text/javascript"></script>
+        <script>
+                            $(document).ready(function (e) {
+                                $('img[usemap]').rwdImageMaps();
+                            });
+        </script>
+    </ui:define>
+</ui:composition>

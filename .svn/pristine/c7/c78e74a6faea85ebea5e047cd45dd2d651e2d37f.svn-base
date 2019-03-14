@@ -1,0 +1,420 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.panu.competitor.information.controller.bean;
+
+import com.panu.competitor.information.common.CommonUtilsFunctions;
+import com.panu.competitor.information.common.ConstantCommon;
+import com.panu.competitor.information.common.MessagesView;
+import com.panu.competitor.information.dto.ReportGraphDTO;
+import com.panu.competitor.information.dto.ReportGraphDTOParent;
+import com.panu.competitor.information.exception.CompetitorException;
+import com.panu.competitor.information.pojo.entity.Company;
+import com.panu.competitor.information.spring.service.ICompanyService;
+import com.panu.competitor.information.spring.service.IPlantInformationService;
+import java.io.Serializable;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import javax.faces.bean.ViewScoped;
+import javax.inject.Named;
+import org.primefaces.model.chart.Axis;
+import org.primefaces.model.chart.AxisType;
+import org.primefaces.model.chart.BarChartModel;
+import org.primefaces.model.chart.CategoryAxis;
+import org.primefaces.model.chart.ChartSeries;
+import org.primefaces.model.chart.LineChartModel;
+import org.springframework.beans.factory.annotation.Autowired;
+
+/**
+ *
+ * @author BI3
+ */
+@Named("reportGraphMB")
+@ViewScoped
+public class ReportGraphMB implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    @Autowired
+    private IPlantInformationService icompetitorinformationservice;
+
+    @Autowired
+    private ICompanyService companyService;
+
+    private List<String> companyshortname;
+
+    private String fromperiod;
+
+    private String toperiod;
+
+    private List<Company> companyList;
+
+    private List<ReportGraphDTO> reportGraphList;
+
+    private List<ReportGraphDTOParent> reportGraphParentList;
+
+    private int pageIndex;
+
+    private int firstIndex;
+
+    private int lastIndex;
+
+    private int limitPages = 5;
+
+    private boolean flag;
+
+    private boolean render_pagin;
+
+    private LineChartModel lineModelForNoofPlant;
+
+    private LineChartModel lineModelForNoofTruck;
+
+    private BarChartModel barModelForTruckCapacity;
+
+    private BarChartModel barModelForVolumepermonth;
+
+    private ReportGraphDTO reportgraphdto = new ReportGraphDTO();
+
+    public void init() {
+        reportGraphParentList = new ArrayList<>();
+        companyshortname = new ArrayList<>();
+        fromperiod = "";
+        toperiod = "";
+        pageIndex = 0;
+        firstIndex = 0;
+        flag = false;
+        render_pagin = false;
+        companyList = new ArrayList<>();
+        companyList.addAll(companyService.findAllCompany());
+    }
+
+    public String getCompanyName(List<ReportGraphDTO> summaryreportlist) throws CompetitorException {
+        String companyname = "";
+        for (int i = 0; i < summaryreportlist.size(); i++) {
+            companyname = summaryreportlist.get(i).getCompanyName();
+            break;
+        }
+        return companyname;
+    }
+
+    public List<String> completePlantPeriod(String query) {
+        List<String> allPeriod = new CommonUtilsFunctions().getPreviousAndFutureOneYears();
+        List<String> filteredPeriod = new ArrayList<>();
+        for (int i = 0; i < allPeriod.size(); i++) {
+            String period = allPeriod.get(i);
+            if (period.toLowerCase().contains(query)) {
+                filteredPeriod.add(period);
+            }
+        }
+        return filteredPeriod;
+    }
+
+    public void searchReportGraphData(String companyname) {
+        try {
+            reportGraphParentList = new ArrayList<>();
+            boolean flag1 = false;
+            List<Date> fromToAllPeriod = new ArrayList<>();
+        
+            if (new SimpleDateFormat("MMM-yyyy").parse(fromperiod).after(new SimpleDateFormat("MMM-yyyy").parse(toperiod))) {
+                MessagesView.error("From Period Date must be smaller than or equal to To Period Date!");
+            } else {
+                List<String> allPeriod = new CommonUtilsFunctions().getPreviousAndFutureOneYears();
+                for (int i = 0; i < allPeriod.size(); i++) {
+                    if (allPeriod.get(i).equals(fromperiod)) {
+                        flag1 = true;
+                    }
+                    if (flag1 == true) {
+                        fromToAllPeriod.add(new SimpleDateFormat("MMM-yyyy").parse(allPeriod.get(i)));
+                    }
+                    if (allPeriod.get(i).equals(toperiod)) {
+                        break;
+                    }
+                }
+                if (fromToAllPeriod.size() > 12) {
+                    render_pagin = false;
+                    flag = false;
+                    MessagesView.error("Please select up to 12 months!");
+                } else {
+                    render_pagin = true;
+                    reportGraphList = icompetitorinformationservice.findCompetitorInfoIDByCompanyNameANDPeriodForReportGraph(companyname, fromToAllPeriod);
+                    ReportGraphDTOParent reportgraphparent = new ReportGraphDTOParent(reportGraphList);
+                    if (reportGraphList.size() > 0) {
+                        flag = true;
+                        reportGraphParentList.add(reportgraphparent);
+                        createLineModels();
+                        createBarModel();
+                    } else {
+                        flag = false;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.getMessage();
+        }
+    }
+
+    public void prev() {
+        pageIndex -= 1;
+        if (pageIndex == firstIndex - 1 && pageIndex != 0) {
+            lastIndex = firstIndex - 1;
+            firstIndex -= limitPages;
+            jumpTo(companyshortname.get(pageIndex));
+        }
+        jumpTo(companyshortname.get(pageIndex));
+    }
+
+    public void jumpTo(String index) {
+        pageIndex = companyshortname.indexOf(index);
+        searchReportGraphData(index);
+    }
+
+    public void searchData() {
+        lastIndex = 4;
+        jumpTo(companyshortname.get(0));
+    }
+
+    public boolean limitPagination(String index) {
+        if (companyshortname.size() < limitPages) {
+            return true;
+        } else if (companyshortname.indexOf(index) >= firstIndex && companyshortname.indexOf(index) <= lastIndex) {
+            return true;
+        }
+        return false;
+    }
+
+    public void next() {
+        pageIndex += 1;
+        if (pageIndex == (lastIndex + 1) && pageIndex != (companyshortname.size() - 1)) {
+            firstIndex = lastIndex + 1;
+            lastIndex += limitPages;
+            jumpTo(companyshortname.get(pageIndex));
+        }
+        jumpTo(companyshortname.get(pageIndex));
+    }
+
+    private LineChartModel initNoofPlantModel() {
+        LineChartModel model = new LineChartModel();
+
+        ChartSeries reportgraphSeries = new ChartSeries();
+        reportgraphSeries.setLabel("");
+        for (int i = 0; i < reportGraphList.size(); i++) {
+            reportgraphSeries.set(new SimpleDateFormat("MMM-yy").format(reportGraphList.get(i).getPeriod()), reportGraphList.get(i).getNoOfPlant());
+        }
+        model.addSeries(reportgraphSeries);
+        return model;
+    }
+
+    private LineChartModel initNoofTruckModel() {
+        LineChartModel model = new LineChartModel();
+
+        ChartSeries reportgraphSeries = new ChartSeries();
+        reportgraphSeries.setLabel("");
+        for (int i = 0; i < reportGraphList.size(); i++) {
+            reportgraphSeries.set(new SimpleDateFormat("MMM-yy").format(reportGraphList.get(i).getPeriod()), reportGraphList.get(i).getNoOfTruck());
+        }
+        model.addSeries(reportgraphSeries);
+        return model;
+    }
+
+    private BarChartModel initBarModelForTruckCapacity() {
+        BarChartModel model = new BarChartModel();
+
+        ChartSeries truckcapacityseries = new ChartSeries();
+        truckcapacityseries.setLabel("");
+        for (int i = 0; i < reportGraphList.size(); i++) {
+            truckcapacityseries.set(new SimpleDateFormat("MMM-yy").format(reportGraphList.get(i).getPeriod()), reportGraphList.get(i).getPlantCapacity());
+        }
+        model.addSeries(truckcapacityseries);
+
+        return model;
+    }
+
+    private BarChartModel initBarModelForVolumepermonth() {
+        BarChartModel model = new BarChartModel();
+
+        ChartSeries volumepermonthseries = new ChartSeries();
+        volumepermonthseries.setLabel("");
+        for (int i = 0; i < reportGraphList.size(); i++) {
+            volumepermonthseries.set(new SimpleDateFormat("MMM-yy").format(reportGraphList.get(i).getPeriod()), reportGraphList.get(i).getVolumePerMonth());
+        }
+        model.addSeries(volumepermonthseries);
+
+        return model;
+    }
+
+    private void createLineModels() {
+        lineModelForNoofPlant = initNoofPlantModel();
+        lineModelForNoofPlant.setAnimate(true);
+        lineModelForNoofPlant.setTitle("Pan United - No. of Plants");
+        lineModelForNoofPlant.setLegendPosition("e");
+        lineModelForNoofPlant.setShowPointLabels(true);
+        lineModelForNoofPlant.getAxes().put(AxisType.X, new CategoryAxis(" "));
+        Axis yAxis = lineModelForNoofPlant.getAxis(AxisType.Y);
+        Axis xAxis = lineModelForNoofPlant.getAxis(AxisType.X);
+        xAxis.setTickAngle(-70);
+        yAxis.setTickFormat("%'.0f");
+        yAxis.setLabel("");
+        yAxis.setMin(0);
+
+        lineModelForNoofTruck = initNoofTruckModel();
+        lineModelForNoofTruck.setAnimate(true);
+        lineModelForNoofTruck.setTitle("Pan United - No. of Trucks");
+        lineModelForNoofTruck.setLegendPosition("e");
+        lineModelForNoofTruck.setShowPointLabels(true);
+        lineModelForNoofTruck.getAxes().put(AxisType.X, new CategoryAxis(" "));
+        Axis yAxisofTruck = lineModelForNoofTruck.getAxis(AxisType.Y);
+        Axis xAxisofTruck = lineModelForNoofTruck.getAxis(AxisType.X);
+        xAxisofTruck.setTickAngle(-70);
+        yAxisofTruck.setTickFormat("%'.0f");
+        yAxisofTruck.setLabel("");
+        yAxisofTruck.setMin(0);
+    }
+
+    private void createBarModel() {
+        barModelForTruckCapacity = initBarModelForTruckCapacity();
+        barModelForTruckCapacity.setTitle("Pan United - Truck Capacity (m³/h)");
+        barModelForTruckCapacity.setLegendPosition("ne");
+        Axis xAxis = barModelForTruckCapacity.getAxis(AxisType.X);
+        xAxis.setTickAngle(-70);
+        Axis yAxis = barModelForTruckCapacity.getAxis(AxisType.Y);
+        yAxis.setTickFormat("%'.0f");
+        yAxis.setMin(0);
+
+        barModelForVolumepermonth = initBarModelForVolumepermonth();
+        barModelForVolumepermonth.setTitle("Pan United - Volume per Month (m³)");
+        barModelForVolumepermonth.setLegendPosition("ne");
+        Axis xAxis1 = barModelForVolumepermonth.getAxis(AxisType.X);
+        xAxis1.setTickAngle(-70);
+        Axis yAxis1 = barModelForVolumepermonth.getAxis(AxisType.Y);
+        yAxis1.setTickFormat("%'.0f");
+        yAxis1.setMin(0);
+    }
+
+    public String changeStringFormat(Date date) {
+        DateFormat dateFormat = new SimpleDateFormat("MMM-yy");
+        String stringdate = dateFormat.format(date);
+        return stringdate;
+    }
+
+    public List<Company> getCompanyList() {
+        return companyList;
+    }
+
+    public void setCompanyList(List<Company> companyList) {
+        this.companyList = companyList;
+    }
+
+    public List<String> getCompanyshortname() {
+        return companyshortname;
+    }
+
+    public void setCompanyshortname(List<String> companyshortname) {
+        this.companyshortname = companyshortname;
+    }
+
+    public String getFromperiod() {
+        return fromperiod;
+    }
+
+    public void setFromperiod(String fromperiod) {
+        this.fromperiod = fromperiod;
+    }
+
+    public String getToperiod() {
+        return toperiod;
+    }
+
+    public void setToperiod(String toperiod) {
+        this.toperiod = toperiod;
+    }
+
+    public int getPageIndex() {
+        return pageIndex;
+    }
+
+    public void setPageIndex(int pageIndex) {
+        this.pageIndex = pageIndex;
+    }
+
+    public void setFirstIndex(int firstIndex) {
+        this.firstIndex = firstIndex;
+    }
+
+    public void setLastIndex(int lastIndex) {
+        this.lastIndex = lastIndex;
+    }
+
+    public void setLimitPages(int limitPages) {
+        this.limitPages = limitPages;
+    }
+
+    public List<ReportGraphDTO> getReportGraphList() {
+        return reportGraphList;
+    }
+
+    public void setReportGraphList(List<ReportGraphDTO> reportGraphList) {
+        this.reportGraphList = reportGraphList;
+    }
+
+    public boolean isFlag() {
+        return flag;
+    }
+
+    public void setFlag(boolean flag) {
+        this.flag = flag;
+    }
+
+    public List<ReportGraphDTOParent> getReportGraphParentList() {
+        return reportGraphParentList;
+    }
+
+    public void setReportGraphParentList(List<ReportGraphDTOParent> reportGraphParentList) {
+        this.reportGraphParentList = reportGraphParentList;
+    }
+
+    public LineChartModel getLineModelForNoofPlant() {
+        return lineModelForNoofPlant;
+    }
+
+    public void setLineModelForNoofPlant(LineChartModel lineModelForNoofPlant) {
+        this.lineModelForNoofPlant = lineModelForNoofPlant;
+    }
+
+    public LineChartModel getLineModelForNoofTruck() {
+        return lineModelForNoofTruck;
+    }
+
+    public void setLineModelForNoofTruck(LineChartModel lineModelForNoofTruck) {
+        this.lineModelForNoofTruck = lineModelForNoofTruck;
+    }
+
+    public BarChartModel getBarModelForTruckCapacity() {
+        return barModelForTruckCapacity;
+    }
+
+    public void setBarModelForTruckCapacity(BarChartModel barModelForTruckCapacity) {
+        this.barModelForTruckCapacity = barModelForTruckCapacity;
+    }
+
+    public BarChartModel getBarModelForVolumepermonth() {
+        return barModelForVolumepermonth;
+    }
+
+    public void setBarModelForVolumepermonth(BarChartModel barModelForVolumepermonth) {
+        this.barModelForVolumepermonth = barModelForVolumepermonth;
+    }
+
+    public boolean isRender_pagin() {
+        return render_pagin;
+    }
+
+    public void setRender_pagin(boolean render_pagin) {
+        this.render_pagin = render_pagin;
+    }
+
+}

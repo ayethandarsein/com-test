@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:adm="http://github.com/adminfaces"
+                template="#{layoutMB.template}">
+
+    <f:metadata>
+        <f:viewParam name="CodeSetupName" value="#{northMapPageMB.codeSetupName}"/>
+        <f:viewAction action="#{northMapPageMB.init}"></f:viewAction>
+        <f:viewAction action="#{menuMB.init()}"></f:viewAction>
+    </f:metadata>
+    <ui:define name="head-end">
+        <h:outputStylesheet library="css" name="competitor_datatable_style.css"/> 
+        <style type="text/css">
+
+            .ui-datatable-header{
+                margin-bottom: -7px!important;
+            }
+            .ui-datatable.ui-widget{
+                text-align: center!important;
+            }
+        </style>
+    </ui:define>
+
+    <ui:define name="title">
+        #{northMapPageMB.codeSetupName} Region
+    </ui:define>
+
+    <ui:define name="description">
+
+    </ui:define>
+    <ui:define name="body">
+        <script src="https://maps.google.com/maps/api/js?key=AIzaSyDFN9RS2dKVclKSKoH3vIiQJjtIQmWZqWM" type="text/javascript"></script>
+        <adm:breadcrumb title="North Region" link="/view/map/northmappage.xhtml"/>
+        <div class="box box-primary" style="border: white">  
+            <div class="box-header with-border">
+                <h:form id="mapform">
+                    <div class="ui-g">
+                        <div class="ui-g-12">
+                            <p:commandButton value="Back" onclick="window.history.back()" styleClass="btn btn-info fa fa-reply"/>
+                        </div>
+                        <div class="ui-g-12 ui-md-12 ui-lg-4 ui-fluid">
+                            <h:outputLabel value="Company"/>
+                            <p:selectCheckboxMenu id="multiple" value="#{northMapPageMB.companyCodes}" label="Cities" multiple="true"
+                                                  filter="false" >
+                                <p:ajax event="toggleSelect" listener="#{northMapPageMB.onCompanySelect}" update="alvs" />
+                                <p:ajax listener="#{northMapPageMB.onCompanySelect}" update="alvs" />
+                                <f:selectItems value="#{northMapPageMB.companyList}" var="company" itemLabel="#{company.companyCode}" itemValue="#{company.companyCode}"/>
+                            </p:selectCheckboxMenu>
+                        </div>
+                        
+
+                    </div>
+                    <h:panelGroup id="alvs">
+                        <p:repeat id="dataTableLoop" var="par" value="#{northMapPageMB.parents}" varStatus="loop">
+                            
+                            <p:dataTable reflow="true" value="#{par.children}" var="rec">
+                                <f:facet name="header">
+                                    <h:outputLabel value="#{northMapPageMB.getCompanyName(loop.index)}" style="font-size: small;font-weight: bold;margin-left: -7px;"/>
+                                </f:facet>
+                                <p:column headerText="Batching Plant Location">
+                                    <h:outputLabel value="#{northMapPageMB.getLocationNameById(rec.batchingPlantLocation)}"/>
+                                </p:column>
+                                <p:column headerText="No. of Batching Plant">
+                                    <h:outputLabel value="#{rec.noOfBatchingPlant}"/>
+                                </p:column>
+                                <p:column headerText="No. of Truck">
+                                    <h:outputLabel value="#{rec.noOfTrack}"/>
+                                </p:column>
+                                <p:column headerText="Batching Capacity">
+                                    <h:outputLabel value="#{rec.batchingCapacity}"/>
+                                </p:column>
+                                <p:column headerText="Map Location">
+                                    <p:commandButton styleClass="btn-success datatablebutton" action="#{northMapPageMB.bindMapData(rec)}" update="gmapDialog" style=" display: block; margin: 0 auto;" icon="fa fa-map-marker" oncomplete="PF('dlg').show();"/>
+                                </p:column>
+                            </p:dataTable>
+                        </p:repeat>
+                    </h:panelGroup>
+                </h:form>
+            </div>
+        </div>
+        <p:dialog id="gmapDialog" widgetVar="dlg" width="625" height="400" modal="true" appendTo="@(body)" position="center center">
+            <p:gmap id="gmap" center="#{northMapPageMB.focusLatLong}" zoom="13" type="HYBRID" style="width:100%;height:100%" model="#{northMapPageMB.complexModel}"/>
+        </p:dialog>
+    </ui:define>
+</ui:composition>

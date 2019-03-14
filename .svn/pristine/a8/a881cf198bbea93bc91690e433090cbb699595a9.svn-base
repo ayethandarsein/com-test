@@ -1,0 +1,255 @@
+/*
+ * ConstantCommon
+ */
+package com.panu.competitor.information.common;
+
+/**
+ * @author HNDK
+ */
+public class MessagesCommon {
+
+    // <editor-fold desc="Company Messages">
+    /**
+     * ERROR MESSAGE - Company Name Duplicate *
+     */
+    public static final String M0001_COMPANY_NAME_DUPLICATE = " Company Name Duplicate!";
+    /**
+     * ERROR MESSAGE - Company Color Duplicate *
+     */
+    public static final String M0002_COMPANY_COLOR_DUPLICATE = " Color duplicate!";
+    /**
+     * ERROR MESSAGE - Company Code Duplicate *
+     */
+    public static final String M0003_COMPANY_CODE_DUPLICATE = " Company Short Name duplicate!";
+    /**
+     * SUCCESS MESSAGE - Saving Company *
+     */
+    public static final String M0004_COMPANY_SAVE_SUCCESSFULLY = " Company saved  successfully ";
+    /**
+     * SUCCESS MESSAGE - Company dialog header *
+     */
+    public static final String M0005_COMPANY_INFORMATION = " Company Information ";
+    /**
+     * SUCCESS MESSAGE - Company delete successfully *
+     */
+    public static final String M0006_COMPANY_DELETED_SUCCESSFULLY = " Company deleted successfully ";
+    /**
+     * SUCCESS MESSAGE - Company edited successfully *
+     */
+    public static final String M0007_COMPANY_EDITED_SUCCESSFULLY = " Company updated successfully ";
+    /**
+     * WARNING MESSAGE - Company Name is required! *
+     */
+    public static final String M0008_COMPANY_NAME_REQUIRED = " Company Name is required! ";
+    /**
+     * WARNING MESSAGE - Company Code is required! *
+     */
+    public static final String M0009_COMPANY_CODE_REQUIRED = " Company Short Name is required! ";
+    /**
+     * WARNING MESSAGE - Company Code is required! *
+     */
+    public static final String M0010_COMPANY_COLOR_REQUIRED = " Color is is required! ";
+    /**
+     * WARNING MESSAGE - Company Name empty *
+     */
+    public static final String M0011_COMPANY_NAME_EMPTY = " Company Name cannot be empty!";
+    /**
+     * WARNING MESSAGE - Company Color empty *
+     */
+    public static final String M0012_COMPANY_COLOR_EMPTY = " Color cannot be empty!";
+    /**
+     * WARNING MESSAGE - Company Code empty *
+     */
+    public static final String M0013_COMPANY_CODE_EMPTY = " Company Short Name cannot be empty!";
+    // </editor-fold>
+
+    // <editor-fold desc="Capability Messages">
+    /**
+     * WARNING MESSAGE - Capability Name is required! *
+     */
+    public static final String M0014_CAPABILITY_NAME_REQUIRED = " Capability name is required! ";
+    /**
+     * WARNING MESSAGE - Capability Short Name is required! *
+     */
+    public static final String M0015_CAPABILITY_SHORT_NAME_REQUIRED = " Capability Short Name is required! ";
+    /**
+     * SUCCESS MESSAGE - Capability dialog header *
+     */
+    public static final String M0016_CAPABILITY_INFORMATION = " Capability Information ";
+    /**
+     * SUCCESS MESSAGE - Saving Capability *
+     */
+    public static final String M0017_CAPABILITY_SAVE_SUCCESSFULLY = " Capability saved  successfully ";
+    /**
+     * SUCCESS MESSAGE - Capability delete successfully *
+     */
+    public static final String M0018_CAPABILITY_DELETED_SUCCESSFULLY = " Capability deleted successfully ";
+    /**
+     * ERROR MESSAGE - Capability Name Duplicate *
+     */
+    public static final String M0019_CAPABILITY_NAME_DUPLICATE = " Capability Name Duplicate!";
+    /**
+     * ERROR MESSAGE - Capability Short Name Duplicate *
+     */
+    public static final String M0020_CAPABILITY_SHORT_NAME_DUPLICATE = " Capability Short Name duplicate!";
+    /**
+     * WARNING MESSAGE - Capability Name empty *
+     */
+    public static final String M0021_CAPABILITY_NAME_EMPTY = " Capability Name cannot be empty!";
+    /**
+     * WARNING MESSAGE - Capability Short Name empty *
+     */
+    public static final String M0022_CAPABILITY_SHORT_NAME_EMPTY = " Capability Short Name cannot be empty! ";
+    /**
+     * SUCCESS MESSAGE - Company edited successfully *
+     */
+    public static final String M0023_CAPABILITY_EDITED_SUCCESSFULLY = " Capability updated successfully ";
+
+    // </editor-fold>
+    // <editor-fold desc="Plant Messages">
+    /**
+     * SUCCESS MESSAGE - Plant dialog header *
+     */
+    public static final String M0024_PLANT_INFORMATION = " Plant Information ";
+    /**
+     * SUCCESS MESSAGE - Saving Plant *
+     */
+    public static final String M0025_PLANT_SAVE_SUCCESSFULLY = " Plant saved  successfully ";
+    /**
+     * SUCCESS MESSAGE - Plant duplicate *
+     */
+    public static final String M0026_PLANT_INFO_DUPLICATE = " Plant inforamiton already existed! ";
+    /**
+     * SUCCESS MESSAGE - Plant deleted *
+     */
+    public static final String M0027_PLANT_DELETE_SUCCESSFULLY = " Plant deleted successfully ";
+    /**
+     * SUCCESS MESSAGE - Plant name is required! *
+     */
+    public static final String M0028_PLANT_NAMED_REQUIRED = " Plant Name is required! ";
+    /**
+     * SUCCESS MESSAGE - Location name is required! *
+     */
+    public static final String M0029_LOCATION_NAMED_REQUIRED = " Location Name is required! ";
+    /**
+     * SUCCESS MESSAGE - Location name is required! *
+     */
+    public static final String M0030_STATUS_NAMED_REQUIRED = " Status is required! ";
+    /**
+     * SUCCESS MESSAGE - Location name is required! *
+     */
+    public static final String M0031_LONGITUDE_NAMED_REQUIRED = " Longitude is required! ";
+    /**
+     * SUCCESS MESSAGE - Location name is required! *
+     */
+    public static final String M0032_LATITUDE_NAMED_REQUIRED = " Latitude is required! ";
+
+    public static final String M0032_PERIOD_NAMED_REQUIRED = " Period is required!";
+    /**
+     * SUCCESS MESSAGE - Location name is required! *
+     */
+    public static final String M0033_PLANT_UPDATED_SUCCESSFULLY = " Plant updated successfully ";
+    /**
+     * ERROR MESSAGE - plant name empty *
+     */
+    public static final String M0047_PLANT_NAME_EMPTY = " Plant Name cannot be empty! ";
+    /**
+     * ERROR MESSAGE - plant name empty *
+     */
+    public static final String M0048_LATITUDE_EMPTY = " Latitude cannot be zero! ";
+    /**
+     * ERROR MESSAGE - plant name empty *
+     */
+    public static final String M0049_LONGITUDE_EMPTY = " Longitude cannot be zero! ";
+
+    // </editor-fold>
+    // <editor-fold desc="Plant Messages">
+    /**
+     * SUCCESS MESSAGE - User dialog header *
+     */
+    public static final String M0034_USER_INFORMATION = " User Information ";
+    /**
+     * SUCCESS MESSAGE - Plant deleted *
+     */
+    public static final String M0035_USER_DELETE_SUCCESSFULLY = " User deleted successfully ";
+    /**
+     * SUCCESS MESSAGE - Plant deleted *
+     */
+    public static final String M0050_USER_CANNOT_DELETE_ADMIN = " Cannot delete admin ";
+    /**
+     * SUCCESS MESSAGE - New Password is required! *
+     */
+    public static final String M0036_NEW_PASSWORD_REQUIERD = " New Password is required! ";
+    /**
+     * SUCCESS MESSAGE - Confirm Password is required! *
+     */
+    public static final String M0037_CONFIRM_PASSWORD_REQUIERD = " Confirm Password is required! ";
+    /**
+     * ERROR MESSAGE - Password Match Validation is required! *
+     */
+    public static final String M0038_PASSWORD_MATCHING = "	Password and Confirm Password are needed to match.";
+    /**
+     * SUCCESS MESSAGE - User create successfully *
+     */
+    public static final String M0040_USER_CREATE_SUCCESSFULLY = "User created successfully";
+    /**
+     * SUCCESS MESSAGE - User create successfully *
+     */
+    public static final String M0041_PASSWORD_CHANGE_SUCCESSFULLY = "Password changed successfully";
+    /**
+     * ERROR MESSAGE - User create successfully *
+     */
+    public static final String M0042_USERNAME_DUPLICATED = "User Name duplicated";
+    /**
+     * ERROR MESSAGE - User name is required! *
+     */
+    public static final String M0043_USERNAME_REQUIRED = "User Name is required!";
+    /**
+     * ERROR MESSAGE - Full name is required! *
+     */
+    public static final String M0044_FULLNAME_REQUIRED = "Name is required!";
+    /**
+     * ERROR MESSAGE - Full name is required! *
+     */
+    public static final String M0045_EMAIL_REQUIRED = "Email is required!";
+    /**
+     * ERROR MESSAGE - Password is required! *
+     */
+    public static final String M0046_PASSWORD_REQUIRED = "Password is required!";
+    // </editor-fold>
+
+    public static final String M0047_COMPETITOR_INFORMATION_SAVE_SUCCESSFULLY = " Plant detail information saved successfully";
+    
+    public static final String M0047_COMPETITOR_INFORMATION_NO_DATA = "No plant detail information to save";
+
+    public static final String M0048_NO_PREVIOUS_INFORMATION = " No previous month Information ";
+
+    public static final String M0049_NO_INFORMATION_TO_COPY = " No information to copy. Showing all Plants";
+
+    public static final String M0047_COMPETITOR_INFORMATION = "Competitor Information";
+
+    public static final String M0048_NEED_TO_SELECT_COMPANY_NAME = "At least select company";
+
+    public static final String M0016_FILEDOWNLOAD_FILEDOESNOTEXIST = "File does not exist";
+    
+    public static final String M0049_SHOWING_ALL_PLANTS = "Showing all plants data ";
+    
+    public static final String M0049_SHOWING_CURRENT_PLANTS = "Showing current month data";
+    
+    public static final String M0049_SHOWING_PREVIOUS_PLANTS = "Showing previous month data";
+    
+    public static final String M0049_NO_PLANT_TO_COPY = "No plant data to copy";
+    
+    public static final String M0050_ZONE_NAMED_REQUIRED = "Zone is required!";
+    
+    public static final String M0051_LOCATION_NAME_REQUIRED = "Location Name is required!";
+    
+    public static final String M0052_LOCATION_NAME_EMPTY = "Location Name cannot be empty!";
+    
+    public static final String M0053_LOCATION_EDITED_SUCCESSFULLY = "Location updated successfully";
+    
+    public static final String M0053_LOCATION_SAVE_SUCCESSFULLY = "Location saved successfully";
+    
+    public static final String M0054_ROLE_REQUIRED = "Role is required!";
+
+}

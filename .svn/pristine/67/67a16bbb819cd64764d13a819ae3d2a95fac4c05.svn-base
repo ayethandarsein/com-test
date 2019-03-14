@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:adm="http://github.com/adminfaces"
+                template="#{layoutMB.template}">
+
+    <f:metadata>
+        <f:viewAction action="#{summaryReportMB.init}"></f:viewAction>
+    </f:metadata>
+    <ui:define name="head-end">
+        <meta name="viewport" content="width=device-width"/>
+        <h:outputStylesheet library="css" name="competitor_datatable_style.css"/>
+        <style type="text/css">
+
+            .ui-datatable .ui-datatable-header {
+                text-align: right !important;
+            }
+            div.ui-dialog-titlebar.ui-dialog-titlebar.ui-widget-header{
+                background-color:  #ecf0f5!important;
+            }
+            @media ( max-width: 1024px) {
+                .mybutton.ui-button.ui-widget{
+                    margin-top: .9em!important;
+                }
+            }
+
+            @media screen and (max-width: 768px) {
+                 table tr:nth-child(even) {
+                background-color: #eee;
+            }
+            table tr:nth-child(odd) {
+                background-color: #fff;
+            }
+                table {
+                    border: 0!important;
+                }
+                table thead {
+                    border: none;
+                    clip: rect(0 0 0 0);
+                    height: 1px;
+                    margin: -1px;
+                    overflow: hidden;
+                    padding: 0;
+                    position: absolute;
+                    width: 1px;
+                }
+
+                table tr {
+                    border-bottom: 1px solid #ddd;
+                    display: block;
+                    margin-bottom: 2mm;
+                }
+
+                table td {
+                    text-align: left!important;
+                    border-bottom: 0px solid #ddd;
+                    display: block;
+                    font-size: 4mm;
+                    text-align: right;
+                }
+
+                table td::before {
+                    /*
+                    * aria-label has no advantage, it won't be read inside a table
+                    content: attr(aria-label);
+                    */
+                    min-width: 50%;
+                    content: attr(data-label);
+                    float: left;
+                    font-weight: bold;
+                    text-transform: uppercase;
+                }
+
+                table td:last-child {
+                    border-bottom: 0;
+                }
+            }
+
+        </style>
+        <style>
+            table {
+                width:100%;
+            }
+            table, th, td {
+                border: 1px solid #E6E6E6;
+                border-collapse: collapse;
+            }
+            th{
+                padding: 15px;
+                text-align: center;
+            }
+            td {
+                padding: 15px;
+                text-align: left;
+            }
+            table#t01 tr:nth-child(even) {
+                background-color: #eee;
+            }
+            table#t01 tr:nth-child(odd) {
+                background-color: #fff;
+            }
+            table#t01 th {
+                background-color: black;
+                color: white;
+            }
+        </style>
+    </ui:define>
+
+    <ui:define name="title">
+        Overall Summary Report
+    </ui:define>
+
+    <ui:define name="description">
+    </ui:define>
+    <ui:define name="body">
+        <adm:breadcrumb title="Summary Report" link="/view/reports/overall_summary.xhtml"/>
+        <div class="box box-primary" style="border:white">
+            <div class="box-header with-border">
+                <h:form id="mapform">
+                    <p:messages id="msgs" closable="true"/>
+                    <p:panel style="-moz-border-radius: 25px!important; -webkit-border-radius: 25px!important;">
+                        <div class="ui-g">
+                            <div class="ui-g-12">
+                                <p:commandButton value="Back" onclick="window.history.back()" styleClass="btn btn-info fa fa-reply"/>
+                            </div>
+                            <div class="ui-g-12 ui-md-12 ui-lg-4 ui-fluid">
+                                <p:focus/>
+                                <h:outputLabel value="Company"/>
+                                <p:selectCheckboxMenu requiredMessage="Company is required" style="background: white" id="multiple" label="Cities" multiple="true" value="#{summaryReportMB.companyshortname}"
+                                                      filter="false" filterMatchMode="startsWith" required="true">
+                                    <f:selectItems value="#{summaryReportMB.companyList}" var="company" itemLabel="#{company.companyCode}" itemValue="#{company.companyCode}"/>
+                                </p:selectCheckboxMenu>
+                            </div>
+                            <div class="ui-g-12 ui-md-12 ui-lg-12"/>
+                            <div class="ui-g-12 ui-md-4 ui-lg-2 ui-fluid"><h:outputLabel value="From Period:"/>
+                                <p:selectOneMenu filter="true" filterMatchMode="contains" value="#{summaryReportMB.fromperiod}" style="background-color: white" required="true" requiredMessage="From Period is required">
+                                    <f:selectItem itemLabel="Select Period" itemValue="" noSelectionOption="true" />
+                                    <f:selectItems value="#{globalDropDownList.periodCurrentAndLastFiveList}" var="period" itemLabel="#{period}" itemValue="#{period}"/>
+                                </p:selectOneMenu>
+                            </div>
+                            <div class="ui-g-12 ui-md-4 ui-lg-2 ui-fluid"><h:outputLabel value="To Period:"/>
+                                <p:selectOneMenu filter="true" filterMatchMode="contains" value="#{summaryReportMB.toperiod}" style="background-color: white" required="true" requiredMessage="To Period is required">
+                                    <f:selectItem itemLabel="Select Period" itemValue="" noSelectionOption="true" />
+                                    <f:selectItems value="#{globalDropDownList.periodCurrentAndLastFiveList}" var="period" itemLabel="#{period}" itemValue="#{period}"/>
+                                </p:selectOneMenu>
+                            </div>
+                            <div class="ui-g-12 ui-md-4 ui-lg-1 ui-fluid">
+                                <p:commandButton value="Search" ajax="false" actionListener="#{summaryReportMB.searchSummaryReportData()}" style="margin-top: 1.55em;" styleClass="btn-primary mybutton fa fa-search" />
+                            </div>
+                        </div>
+                    </p:panel>
+                    <div class="ui-g-12"/>
+                    <div class="ui-g-12 ui-md-12 ui-lg-12">
+                        <p:commandButton rendered="#{summaryReportMB.render_table}"  actionListener="#{summaryReportMB.specificExcelFilepath()}" ajax="false" value="Generate Report" styleClass="btn-primary fa fa-arrow-circle-o-down">
+                            <p:fileDownload value="#{summaryReportMB.file}" />
+                        </p:commandButton>
+                    </div>
+                    <p:spacer width="3"/>
+                    <p:repeat var="par" value="#{summaryReportMB.summaryReportParent}" varStatus="status">
+                        <h:panelGroup rendered="#{summaryReportMB.render_table}">
+                            <table id="t01">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">#{summaryReportMB.getCompanyName(par.children)}</th> 
+                                        <p:repeat value="#{par.children}" var="report" varStatus="loop">
+                                            <th scope="col">#{summaryReportMB.changeStringFormat(report.period)}</th> 
+                                        </p:repeat>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td data-label="#{summaryReportMB.getCompanyName(par.children)}">No. of Plants</td>
+                                        <p:repeat value="#{par.children}" var="report" varStatus="loop">
+                                            <td data-label="#{summaryReportMB.changeStringFormat(report.period)}">#{report.noOfPlant}</td> 
+                                        </p:repeat>
+                                    </tr>
+                                    <tr>
+                                        <td data-label="#{summaryReportMB.getCompanyName(par.children)}">No. of Trucks</td>
+                                        <p:repeat value="#{par.children}" var="report" varStatus="loop">
+                                            <td data-label="#{summaryReportMB.changeStringFormat(report.period)}">#{report.noOfTruck}</td> 
+                                        </p:repeat>
+                                    </tr>
+                                    <tr>
+                                        <td data-label="#{summaryReportMB.getCompanyName(par.children)}">Truck Capacity (mᶟ)</td>
+                                        <p:repeat value="#{par.children}" var="report" varStatus="loop">
+                                            <td data-label="#{summaryReportMB.changeStringFormat(report.period)}">#{report.plantCapacity}</td> 
+                                        </p:repeat>
+                                    </tr>
+                                    <tr>
+                                        <td data-label="#{summaryReportMB.getCompanyName(par.children)}">Volume per Month (mᶟ)</td>
+                                        <p:repeat value="#{par.children}" var="report" varStatus="loop">
+                                            <td data-label="#{summaryReportMB.changeStringFormat(report.period)}">#{report.volumePerMonth}</td> 
+                                        </p:repeat>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </h:panelGroup>
+                        <p:spacer></p:spacer>
+                    </p:repeat>
+                    <h:panelGroup id="footer">
+                        <div class="ui-g-12 ui-md-12 ui-lg-12" >
+                            <p:outputLabel value="Batching Capacity - base on 1,200 m³/h/plant" rendered="#{summaryReportMB.render_table}"/> 
+                        </div>
+                        <div class="ui-g-12 ui-md-12 ui-lg-12">
+                            <p:outputLabel value="Truck Capacity (mᶟ) - base on 9m³/each truck" rendered="#{summaryReportMB.render_table}"/> 
+                        </div>
+                    </h:panelGroup>
+                </h:form>
+                <p:separator />
+            </div>
+        </div>
+    </ui:define>
+</ui:composition>

@@ -1,0 +1,22 @@
+.noprintvolumetable{
+    display: none!important;
+}
+
+@media print {
+    @page {
+        size: portrait;
+    }
+    div[id="charthaha:volumetable"] thead {
+        display:none!important;
+    }
+    .nevershowforvolumebtn{
+          display: none!important; 
+    }
+    .nevershowvolumetable{
+        display: none!important; 
+    }
+    .noprintvolumetable{
+        display: block!important;
+    }
+
+}

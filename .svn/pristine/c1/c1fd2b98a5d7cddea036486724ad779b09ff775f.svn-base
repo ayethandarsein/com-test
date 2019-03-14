@@ -1,0 +1,22 @@
+.noprintcapabilitesandotherstable{
+    display: none!important;
+}
+
+@media print {
+    @page {
+        size: portrait;
+    }
+    div[id="charthaha:capabilitesandother"] thead {
+        display:none!important;
+    }
+    .nevershowforcapabilitesandothersbtn{
+          display: none!important; 
+    }
+    .nevershowcapabilitesandotherstable{
+        display: none!important; 
+    }
+    .noprintcapabilitesandotherstable{
+        display: block!important;
+    }
+
+}

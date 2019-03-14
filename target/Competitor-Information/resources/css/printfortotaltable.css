@@ -1,0 +1,22 @@
+.noprinttotaltable{
+    display: none!important;
+}
+
+@media print {
+    @page {
+        size: portrait;
+    }
+    div[id="charthaha:totalTable"] thead {
+        display:none!important;
+    }
+    .nevershowfortotalbtn{
+          display: none!important; 
+    }
+    .nevershowtotaltable{
+        display: none!important; 
+    }
+    .noprinttotaltable{
+        display: block!important;
+    }
+
+}

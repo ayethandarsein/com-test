@@ -1,0 +1,502 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.panu.competitor.information.controller.bean;
+
+import com.panu.competitor.information.common.CommonUtilsFunctions;
+import com.panu.competitor.information.common.MessagesView;
+import com.panu.competitor.information.dto.SummaryReportDTO;
+import com.panu.competitor.information.dto.SummaryReportDTOParent;
+import com.panu.competitor.information.exception.CompetitorException;
+import com.panu.competitor.information.pojo.entity.Company;
+import com.panu.competitor.information.spring.service.ICompanyService;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import javax.faces.bean.ViewScoped;
+import javax.inject.Named;
+import org.springframework.beans.factory.annotation.Autowired;
+import com.panu.competitor.information.spring.service.IPlantInformationService;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.servlet.ServletContext;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFColor;
+import org.primefaces.model.DefaultStreamedContent;
+import org.primefaces.model.StreamedContent;
+
+/**
+ *
+ * @author BI3
+ */
+@Named("summaryReportMB")
+@ViewScoped
+public class SummaryReportMB implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    @Autowired
+    private IPlantInformationService icompetitorinformationservice;
+
+    @Autowired
+    private ICompanyService companyService;
+
+    @Autowired
+    ServletContext servletContext;
+
+    private List<String> companyshortname;
+
+    private String fromperiod;
+
+    private String toperiod;
+
+    private List<Company> companyList;
+
+    private List<SummaryReportDTO> summaryReportList;
+
+    private List<SummaryReportDTOParent> summaryReportParent;
+
+    private StreamedContent file;
+
+    private boolean render_table;
+
+    public void init() {
+        render_table = false;
+        summaryReportParent = new ArrayList<SummaryReportDTOParent>();
+        companyshortname = new ArrayList<String>();
+        fromperiod = "";
+        toperiod = "";
+        companyList = new ArrayList<Company>();
+        companyList.addAll(companyService.findAllCompany());
+    }
+
+    public String getCompanyName(List<SummaryReportDTO> summaryreportlist) throws CompetitorException {
+        String companyname = "";
+        for (int i = 0; i < summaryreportlist.size(); i++) {
+            companyname = summaryreportlist.get(i).getCompanyName();
+            break;
+        }
+        return companyname;
+    }
+
+    public List<String> completePlantPeriod(String query) {
+        List<String> allPeriod = new CommonUtilsFunctions().getPreviousAndFutureOneYears();
+        List<String> filteredPeriod = new ArrayList<String>();
+        for (int i = 0; i < allPeriod.size(); i++) {
+            String period = allPeriod.get(i);
+            if (period.toLowerCase().contains(query)) {
+                filteredPeriod.add(period);
+            }
+        }
+        return filteredPeriod;
+    }
+
+    public void searchSummaryReportData() {
+        try {
+
+            summaryReportParent = new ArrayList<SummaryReportDTOParent>();
+            boolean flag = false;
+            List<Date> fromToAllPeriod = new ArrayList<Date>();
+            if (new SimpleDateFormat("MMM-yyyy").parse(fromperiod).after(new SimpleDateFormat("MMM-yyyy").parse(toperiod))) {
+                render_table = false;
+                MessagesView.error("From Period Date must be smaller than or equal to To Period Date!");
+            } else {
+                List<String> allPeriod = new CommonUtilsFunctions().getCurrentAndPreviousFiveYears();
+                for (int i = 0; i < allPeriod.size(); i++) {
+                    if (allPeriod.get(i).equals(fromperiod)) {
+                        flag = true;
+                    }
+                    if (flag == true) {
+                        fromToAllPeriod.add(new SimpleDateFormat("MMM-yyyy").parse(allPeriod.get(i)));
+                    }
+                    if (allPeriod.get(i).equals(toperiod)) {
+                        break;
+                    }
+                }
+                if (fromToAllPeriod.size() > 12) {
+                      render_table = false;
+                    MessagesView.error("Please select up to 12 months!");
+                } else {
+                    render_table = true;
+                    for (int j = 0; j < companyshortname.size(); j++) {
+                        summaryReportList = icompetitorinformationservice.findCompetitorInfoIDByCompanyNameANDPeriod(companyshortname.get(j), fromToAllPeriod);
+                        SummaryReportDTOParent summaryparent = new SummaryReportDTOParent(summaryReportList);
+                        if (summaryReportList.size() > 0) {
+                            summaryReportParent.add(summaryparent);
+                        } else {
+
+                        }
+                        if (summaryReportParent.size() == 0) {
+                            render_table = false;
+                        } else {
+                            render_table = true;
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.getMessage();
+        }
+
+    }
+
+    public String excelWriter() throws FileNotFoundException, IOException {
+        String fileName = "";
+        String PATH = servletContext.getRealPath("/WEB-INF");
+        String directoryName = PATH + "/SummaryReports";
+        try {
+            File directory = new File(directoryName);
+            if (!directory.exists()) {
+                directory.mkdir();
+                // If you require it to make the entire directory path including parents,
+                // use directory.mkdirs(); here instead.
+            }
+            List<String> columns = new ArrayList<String>();
+            // Create a Workbook
+            XSSFWorkbook workbook = new XSSFWorkbook();
+            
+            CreationHelper creationHelper = workbook.getCreationHelper();
+            // Create a Sheet
+            Sheet sheet = workbook.createSheet("Overall Summary Report");
+
+            Row mainheaderRow = sheet.createRow(0);
+            Font mainheaderFont = workbook.createFont();
+            mainheaderFont.setBold(true);
+            mainheaderFont.setUnderline(Font.U_SINGLE);
+            mainheaderFont.setFontHeightInPoints((short) 16);
+            CellStyle mainheaderCellStyle = workbook.createCellStyle();
+            mainheaderCellStyle.setFont(mainheaderFont);
+            Cell cellHeader = mainheaderRow.createCell(0);
+            cellHeader.setCellValue("Overall Summary Report (" + fromperiod + " To " + toperiod + ")");
+            cellHeader.setCellStyle(mainheaderCellStyle);
+
+//            Row companyRow = sheet.createRow(2);
+//            Font companyFont = workbook.createFont();
+//            companyFont.setBold(true);
+//            companyFont.setFontHeightInPoints((short) 14);
+//            companyFont.setColor(IndexedColors.BLACK.getIndex());
+//            CellStyle companyCellStyle = workbook.createCellStyle();
+//            companyCellStyle.setFont(companyFont);
+//            Cell forcompanycell = companyRow.createCell(0);
+//            forcompanycell.setCellValue("Company");
+//            forcompanycell.setCellStyle(companyCellStyle);
+//            int rowindex = 3;
+//            int count = 1;
+//            for (int i = 0; i < companyshortname.size(); i++) {
+//                Row companyname = sheet.createRow(rowindex);
+//                Cell forcompanynamecell = companyname.createCell(0);
+//                forcompanynamecell.setCellValue(companyshortname.get(i));
+//                if (i == 0) {
+//                    rowindex += 1;
+//                }
+//                if (1 < i) {
+//                    rowindex += i - count;
+//                    count++;
+//                } else {
+//                    rowindex += i;
+//                }
+//            }
+//            int rowindexforperod = rowindex;
+//            Row periodRow = sheet.createRow(rowindexforperod += 1);
+//            Font periodFont = workbook.createFont();
+//            periodFont.setBold(true);
+//            periodFont.setFontHeightInPoints((short) 14);
+//            periodFont.setColor(IndexedColors.BLACK.getIndex());
+//            CellStyle periodCellStyle = workbook.createCellStyle();
+//            periodCellStyle.setFont(periodFont);
+//            Cell forperiodcell = periodRow.createCell(0);
+//            forperiodcell.setCellValue("Period From");
+//            forperiodcell.setCellStyle(companyCellStyle);
+//            Cell forperiodcell1 = periodRow.createCell(2);
+//            forperiodcell1.setCellValue("Period To");
+//            forperiodcell1.setCellStyle(periodCellStyle);
+//
+//            Row period = sheet.createRow(rowindexforperod += 1);
+//            Cell periodcell = period.createCell(0);
+//            periodcell.setCellValue(fromperiod);
+//            Cell periodcell1 = period.createCell(2);
+//            periodcell1.setCellValue(toperiod);
+            int rowindexfortable = 2;
+            Row headerRow;
+            int rowNum = 0;
+            for (int i = 0; i < summaryReportParent.size(); i++) {
+                columns = new ArrayList<String>();
+                if (i == 0) {
+                    Row companyRow = sheet.createRow(rowindexfortable);
+                    Font companyFont = workbook.createFont();
+                    companyFont.setBold(true);
+                    companyFont.setFontHeightInPoints((short) 11);
+                    companyFont.setColor(IndexedColors.BLACK.getIndex());
+                    CellStyle companyCellStyle = workbook.createCellStyle();
+                    companyCellStyle.setFont(companyFont);
+                    Cell forcompanycell = companyRow.createCell(0);
+                    forcompanycell.setCellValue("Company");
+                    forcompanycell.setCellStyle(companyCellStyle);
+                    for (int j = 0; j < summaryReportParent.get(i).getChildren().size(); j++) {
+                        if (j == 0) {
+                            Cell forcompanyname = companyRow.createCell(1);
+                            forcompanyname.setCellValue(summaryReportParent.get(i).getChildren().get(j).getCompanyName());
+                            forcompanyname.setCellStyle(companyCellStyle);
+                        }
+                        break;
+                    }
+                    headerRow = sheet.createRow(rowindexfortable + 1);
+                } else {
+                    Row companyRow = sheet.createRow(rowNum + 2);
+                    Font companyFont = workbook.createFont();
+                    companyFont.setBold(true);
+                    companyFont.setFontHeightInPoints((short) 11);
+                    companyFont.setColor(IndexedColors.BLACK.getIndex());
+                    CellStyle companyCellStyle = workbook.createCellStyle();
+                    companyCellStyle.setFont(companyFont);
+                    Cell forcompanycell = companyRow.createCell(0);
+                    forcompanycell.setCellValue("Company");
+                    forcompanycell.setCellStyle(companyCellStyle);
+                    for (int j = 0; j < summaryReportParent.get(i).getChildren().size(); j++) {
+                        if (j == 0) {
+                            Cell forcompanyname = companyRow.createCell(1);
+                            forcompanyname.setCellValue(summaryReportParent.get(i).getChildren().get(j).getCompanyName());
+                            forcompanyname.setCellStyle(companyCellStyle);
+                        }
+                        break;
+                    }
+                    headerRow = sheet.createRow(rowNum + 3);
+                }
+                for (int j = 0; j < summaryReportParent.get(i).getChildren().size(); j++) {
+                    if (j == 0) {
+                        columns.add(summaryReportParent.get(i).getChildren().get(j).getCompanyName());
+                    }
+                    columns.add(new SimpleDateFormat("MMM-yyyy").format(summaryReportParent.get(i).getChildren().get(j).getPeriod()));
+                    // Create Column cells
+                    for (int k = 0; k < columns.size(); k++) {
+                        if (k == 0) {
+                            Font headerFont = workbook.createFont();
+                            headerFont.setBold(true);
+                            headerFont.setFontHeightInPoints((short) 11);
+                            // Create a CellStyle with the font
+                            byte[] rgb = new byte[]{(byte) 135, (byte) 206, (byte) 250};
+                            XSSFCellStyle headerCellStyle = workbook.createCellStyle();
+                            headerCellStyle.setFont(headerFont);
+                            headerCellStyle.setFillForegroundColor(new XSSFColor(rgb, null));
+                            headerCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+                            headerCellStyle.setBorderBottom(BorderStyle.THIN);
+                            headerCellStyle.setBorderTop(BorderStyle.THIN);
+                            headerCellStyle.setBorderRight(BorderStyle.THIN);
+                            headerCellStyle.setBorderLeft(BorderStyle.THIN);
+                            headerFont.setColor(IndexedColors.RED.getIndex());
+                            Cell cell = headerRow.createCell(k);
+                            cell.setCellValue(columns.get(k));
+                            cell.setCellStyle(headerCellStyle);
+                        } else {
+                            Font headerFont = workbook.createFont();
+                            headerFont.setBold(true);
+                            headerFont.setFontHeightInPoints((short) 11);
+                            // Create a CellStyle with the font
+                            byte[] rgb = new byte[]{(byte) 135, (byte) 206, (byte) 250};
+                            XSSFCellStyle headerCellStyle = workbook.createCellStyle();
+                            headerCellStyle.setFont(headerFont);
+                            headerCellStyle.setFillForegroundColor(new XSSFColor(rgb, null));
+                            headerCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+                            headerCellStyle.setBorderBottom(BorderStyle.THIN);
+                            headerCellStyle.setBorderTop(BorderStyle.THIN);
+                            headerCellStyle.setBorderRight(BorderStyle.THIN);
+                            headerCellStyle.setBorderLeft(BorderStyle.THIN);
+                            headerFont.setColor(IndexedColors.BLACK.getIndex());
+                            Cell cell = headerRow.createCell(k);
+                            cell.setCellValue(columns.get(k));
+                            cell.setCellStyle(headerCellStyle);
+                        }
+                    }
+                    // Resize all columns to fit the content size
+                    for (int q = 0; q < columns.size(); q++) {
+                        sheet.autoSizeColumn(q + 1);
+                        sheet.setColumnWidth(0, 7000);
+                    }
+                }
+
+                Font headerFont = workbook.createFont();
+                headerFont.setBold(true);
+                headerFont.setFontHeightInPoints((short) 11);
+                headerFont.setColor(IndexedColors.BLACK.getIndex());
+                XSSFCellStyle headerCellStyle = workbook.createCellStyle();
+                headerCellStyle.setFont(headerFont);
+                byte[] rgb = new byte[]{(byte) 135, (byte) 206, (byte) 250};
+                
+                headerCellStyle.setFillForegroundColor(new XSSFColor(rgb, null));
+                headerCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+                headerCellStyle.setBorderBottom(BorderStyle.THIN);
+                headerCellStyle.setBorderTop(BorderStyle.THIN);
+                headerCellStyle.setBorderRight(BorderStyle.THIN);
+                headerCellStyle.setBorderLeft(BorderStyle.THIN);
+
+                Font rowfont = workbook.createFont();
+                rowfont.setFontHeightInPoints((short) 11);
+                rowfont.setColor(IndexedColors.BLACK.getIndex());
+                XSSFCellStyle rowCellStyle = workbook.createCellStyle();
+                rowCellStyle.setDataFormat(creationHelper.createDataFormat().getFormat("#,##0"));
+                rowCellStyle.setFont(rowfont);
+                rowCellStyle.setBorderBottom(BorderStyle.THIN);
+                rowCellStyle.setBorderTop(BorderStyle.THIN);
+                rowCellStyle.setBorderRight(BorderStyle.THIN);
+                rowCellStyle.setBorderLeft(BorderStyle.THIN);
+                if (i == 0) {
+                    rowNum = rowindexfortable += 2;
+                } else {
+                    rowNum = rowNum + 4;
+                }
+//            for (int ii = 0; ii < summaryReportParent.size(); ii++) {
+                Row row = sheet.createRow(rowNum);
+                for (int j = 0; j < summaryReportParent.get(i).getChildren().size(); j++) {
+                    row.createCell(0).setCellValue("No. of Plants");
+                    row.getCell(0).setCellStyle(headerCellStyle);
+                    row.createCell(j + 1).setCellValue(summaryReportParent.get(i).getChildren().get(j).getNoOfPlant());
+                    row.getCell(j + 1).setCellStyle(rowCellStyle);
+                }
+                // }
+//            for (int iii = 0; iii < summaryReportParent.size(); iii++) {
+                Row row1 = sheet.createRow(rowNum += 1);
+                for (int j = 0; j < summaryReportParent.get(i).getChildren().size(); j++) {
+                    row1.createCell(0).setCellValue("No. of Trucks");
+                    row1.getCell(0).setCellStyle(headerCellStyle);
+                    row1.createCell(j + 1).setCellValue(summaryReportParent.get(i).getChildren().get(j).getNoOfTruck());
+                    row1.getCell(j + 1).setCellStyle(rowCellStyle);
+                }
+                // }
+//            for (int iiii = 0; iiii < summaryReportParent.size(); iiii++) {
+                Row row2 = sheet.createRow(rowNum += 1);
+                for (int j = 0; j < summaryReportParent.get(i).getChildren().size(); j++) {
+                    row2.createCell(0).setCellValue("Truck Capacity (mᶟ/h)");
+                    row2.getCell(0).setCellStyle(headerCellStyle);
+                    row2.createCell(j + 1).setCellValue(summaryReportParent.get(i).getChildren().get(j).getPlantCapacity());
+                    row2.getCell(j + 1).setCellStyle(rowCellStyle);
+                }
+                //   }
+//            for (int iiiii = 0; iiiii < summaryReportParent.size(); iiiii++) {
+                Row row3 = sheet.createRow(rowNum += 1);
+                for (int j = 0; j < summaryReportParent.get(i).getChildren().size(); j++) {
+                    row3.createCell(0).setCellValue("Volume per month (mᶟ)");
+                    row3.getCell(0).setCellStyle(headerCellStyle);
+                    row3.createCell(j + 1).setCellValue(summaryReportParent.get(i).getChildren().get(j).getVolumePerMonth());
+                    row3.getCell(j + 1).setCellStyle(rowCellStyle);
+//                }
+                }
+            }
+            fileName = "summary_report_result_" + new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss_SSS").format(new Date()) + ".xlsx";
+            // Write the output to a file
+            FileOutputStream fileOut = new FileOutputStream(directoryName + "/" + fileName);
+
+            workbook.write(fileOut);
+            fileOut.close();
+
+            // Closing the workbook
+            workbook.close();
+        } catch (Exception e) {
+
+        }
+        return fileName;
+    }
+
+    public void specificExcelFilepath() {
+        String filename;
+        try {
+            filename = excelWriter();
+            File f = new File(servletContext.getRealPath("/WEB-INF/SummaryReports/" + filename));
+            String extension = filename.substring(filename.lastIndexOf("."));
+            InputStream stream = new FileInputStream(f);
+            file = new DefaultStreamedContent(stream, extension, filename);
+            if (f.delete()) {
+                System.out.println("File deleted successfully");
+            } else {
+                System.out.println("Failed to delete the file");
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(SummaryReportMB.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+    }
+
+    public String changeStringFormat(Date date) {
+        DateFormat dateFormat = new SimpleDateFormat("MMM-yyyy");
+        String stringdate = dateFormat.format(date);
+        return stringdate;
+    }
+
+    public List<Company> getCompanyList() {
+        return companyList;
+    }
+
+    public void setCompanyList(List<Company> companyList) {
+        this.companyList = companyList;
+    }
+
+    public List<String> getCompanyshortname() {
+        return companyshortname;
+    }
+
+    public void setCompanyshortname(List<String> companyshortname) {
+        this.companyshortname = companyshortname;
+    }
+
+    public String getFromperiod() {
+        return fromperiod;
+    }
+
+    public void setFromperiod(String fromperiod) {
+        this.fromperiod = fromperiod;
+    }
+
+    public String getToperiod() {
+        return toperiod;
+    }
+
+    public void setToperiod(String toperiod) {
+        this.toperiod = toperiod;
+    }
+
+    public List<SummaryReportDTO> getSummaryReportList() {
+        return summaryReportList;
+    }
+
+    public void setSummaryReportList(List<SummaryReportDTO> summaryReportList) {
+        this.summaryReportList = summaryReportList;
+    }
+
+    public List<SummaryReportDTOParent> getSummaryReportParent() {
+        return summaryReportParent;
+    }
+
+    public void setSummaryReportParent(List<SummaryReportDTOParent> summaryReportParent) {
+        this.summaryReportParent = summaryReportParent;
+    }
+
+    public StreamedContent getFile() {
+        return file;
+    }
+
+    public void setFile(StreamedContent file) {
+        this.file = file;
+    }
+
+    public boolean isRender_table() {
+        return render_table;
+    }
+
+    public void setRender_table(boolean render_table) {
+        this.render_table = render_table;
+    }
+
+}

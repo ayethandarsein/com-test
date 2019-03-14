@@ -1,0 +1,691 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:adm="http://github.com/adminfaces"
+                template="#{layoutMB.template}">
+
+    <f:metadata>
+        <f:viewParam name="infoDetailId" value="#{companyDetailChartMB.infoDetailId}"/>
+        <f:viewAction action="#{companyDetailChartMB.init}"></f:viewAction>
+    </f:metadata>
+    <ui:define name="head-end">
+        <h:outputStylesheet library="css" name="printforplanttable.css"/>
+        <h:outputStylesheet library="css" name="printfortrucktable.css"/>
+        <h:outputStylesheet library="css" name="printforvolumetable.css"/>
+        <h:outputStylesheet library="css" name="printfortotaltable.css"/>
+         <h:outputStylesheet library="css" name="printforcapabilitesandotherstable.css"/>
+        <style>
+            .small-chart .highcharts-title {
+                display: none;
+            }
+            @media (max-width: 991px){
+                .breadcrumb{
+                    background:  #ecf0f5 !important;
+                }
+            }
+            .sidebar-form{
+                display: none !important;
+            }
+            body{ background-color: ivory; }
+            #canvas{border:1px solid red;}
+            .mycolumn span.ui-column-title{
+                display: none!important;
+            }
+            #gnome span{
+                overflow:visible!important;
+            }
+            .ui-panel.ui-widget{
+                background-color: #ecf0f5!important;
+            }
+            th{
+                background-color: #a6a8a9!important;
+                color: #444!important;
+                font-size: 14px!important;
+            }
+            .ui-selectcheckboxmenu.ui-widget{
+                background-color: #a6a8a9!important;
+                color: #444!important;
+                font-size: 14px!important;
+            }
+            @font-face {
+                font-family: "Aharoni";
+                src: url('#{resource["fonts/Calibri.ttf"]}');
+            }
+            .ui-selectcheckboxmenu-panel .ui-selectcheckboxmenu-header .ui-chkbox {
+                visibility: hidden;
+            }
+            .ui-filter-column .ui-column-customfilter .custom-filter {
+                width: 100%;
+                box-sizing: border-box;
+            }
+            .ui-datatable-header.ui-widget-header.ui-corner-top{
+                text-align: left!important;
+            }
+        </style>
+    </ui:define>
+
+    <ui:define name="title">
+
+    </ui:define>
+    <ui:define name="body">
+        <adm:breadcrumb title="Chart Detail" link="/view/marketing/chart/CompanyDetailChart.xhtml"/>
+        <script src="https://maps.google.com/maps/api/js?key=AIzaSyDFN9RS2dKVclKSKoH3vIiQJjtIQmWZqWM" type="text/javascript"></script>
+        <script src="../../../resources/js/highchart.js" />
+        <script type="text/javascript">
+            //<![CDATA[
+            $(function () {
+                Highcharts.setOptions({
+                    colors: Highcharts.map(#{companyDetailChartMB.color}, function (color) {
+                        return {
+                            radialGradient: {
+                                cx: 0.5,
+                                cy: 0.3,
+                                r: 0.7
+                            },
+                            stops: [
+                                [0, Highcharts.Color(color).brighten(0.6).get('rgb')], // darken
+                                [1, color]
+                            ]
+                        };
+                    })
+                });
+                Highcharts.chart('gnome', {
+                    responsive: {
+                        rules: [{
+                                condition: {
+                                    maxWidth: 400
+                                },
+                                chartOptions: {
+                                    title: {
+                                        text: #{companyDetailChartMB.chartName},
+                                        align: 'center',
+                                        verticalAlign: 'middle',
+                                        y: -50
+                                    },
+                                    plotOptions: {
+                                        pie: {
+                                            showInLegend: true,
+                                            dataLabels: {
+                                                enabled: false,
+                                                style: {
+                                                    fontSize: '7px'
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                }
+                            }
+                        ]
+                    },
+                    chart: {
+                        plotBackgroundColor: null,
+                        plotBorderWidth: 0,
+                        plotShadow: false,
+                        fontFamily: 'Aharoni',
+                        x: -200,
+                        color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black',
+                        backgroundColor: '#f4f4f4'
+                    },
+                    credits: {
+                        enabled: false
+                    },
+                    title: {
+                        style: {
+                            fontSize: '15px',
+                            fontWeight: 'bold'
+                        },
+                        text: #{companyDetailChartMB.chartName},
+                        align: 'center',
+                        verticalAlign: 'middle',
+                        y: 1
+                    },
+                    tooltip: {
+                        enabled: false,
+                        pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                    },
+                    plotOptions: {
+                        series: {
+                            cursor: 'pointer',
+                            point: {
+                                events: {
+                                    click: function () {
+                                        document.getElementById("charthaha:hiddenname").value = this.id;
+                                        document.getElementById('charthaha:btnshow').click();
+                                    }
+                                }
+                            }
+                        },
+                        pie: {
+                            showInLegend: false,
+                            allowPointSelect: true,
+                            dataLabels: {
+                                enabled: true,
+                                useHTML: true,
+                                overflow: 'none',
+                                crop: false,
+                                x: 2,
+                                style: {
+                                    fontWeight: 'bold',
+                                    fontSize: '1.2em',
+                                    fontFamily: 'Aharoni',
+                                    color: 'white',
+                                    textOutline: false,
+                                    align: 'center',
+                                    whiteSpace: 'pre',
+                                    textalign: 'right'
+                                }
+                            },
+                            startAngle: -180,
+                            endAngle: -180,
+                            center: ['50%', '50%'],
+                            borderWidth: 0,
+                            size: '100%'
+                        }
+
+                    },
+                    series: [{
+                            type: 'pie',
+                            name: 'Batching Plants',
+                            innerSize: '20%',
+                            data: #{companyDetailChartMB.data}
+                        }],
+                    //disable the nav export button
+                    exporting: {
+                        enabled: false
+                    }
+                });
+            });
+            //]]>
+        </script>
+        <div class="box box-primary" style="border:white">
+            <div class="box-header with-border">
+
+                <h:form id="charthaha" >
+
+                    <div class="ui-g" style="background-color: #f4f4f4;border-radius: 25px;">
+                        <div class="ui-g-12 ui-md-12 ui-lg-12"></div>
+                        <div class="ui-g-12 ui-md-12 ui-lg-12"></div>
+                        <div class="ui-g-12 ui-md-12 ui-lg-#{companyDetailChartMB.valueDiv}">
+
+                            <div id="gnome" style="max-width: 660px;
+                                 margin: auto;
+                                 height: 500px;
+                                 margin: 0 auto;"></div>
+                            <h:inputHidden id="hiddenname" value="#{companyDetailChartMB.hiddenSliceId}"/>
+                            <p:commandButton style="display: none" ajax="false" update="charthaha" id="btnshow" actionListener="#{companyDetailChartMB.showTable()}"></p:commandButton>
+                        </div>
+                        <div class="ui-g-12 ui-md-12 ui-lg-#{companyDetailChartMB.valueDiv}">
+                            <div >
+                                <h:panelGroup id="ppanle" rendered="#{companyDetailChartMB.noOfPlantRendered}"> 
+                                    <div class="ui-g">
+                                        <div class="ui-g-12 ui-md-12 ui-lg-12">
+                                            <p:commandButton value="Generate PDF" styleClass="btn-primary fa fa-arrow-circle-o-down" onclick=" window.print();">
+                                            </p:commandButton>
+                                        </div>
+                                    </div>
+                                    <p:dataTable id="zoneTable" var="zone" paginator="false" rows="2" value="#{companyDetailChartMB.zonePlantList}" widgetVar="zoneTable"
+                                                 editable="true" style="text-align: center" sortBy="#{zone.east}"
+                                                 tableStyle="table-layout:auto">
+                                        <p:column headerText="East">
+                                            <h:outputText value="#{zone.east}" style="center"/>
+                                        </p:column>
+                                        <p:column headerText="West">
+                                            <h:outputText value="#{zone.west}" style="center"/>
+                                        </p:column>
+                                        <p:column headerText="North">   
+                                            <h:outputText value="#{zone.north}" style="center"/>
+                                        </p:column>
+                                        <p:column headerText="Central/South">
+                                            <h:outputText value="#{zone.central_south}" style="center"/>
+                                        </p:column>
+                                        <p:column headerText="North East">
+                                            <h:outputText value="#{zone.north_east}" style="center"/>
+                                        </p:column>
+                                        <p:summaryRow >
+                                            <p:column colspan="4" style="text-align:right">
+                                                <h:outputText escape="false" value="Total no. of Plants: &lt;br&gt; (Batching Capacity): " />
+                                            </p:column>
+                                            <p:column>
+                                                <h:outputText escape="false" value="#{zone.total} &lt;br&gt; (#{zone.total*100} m³/h) ">
+                                                    <f:convertNumber locale="en-US" />
+                                                </h:outputText>
+                                            </p:column>
+                                        </p:summaryRow>
+                                    </p:dataTable>
+                                    <p:spacer height="5"/>
+
+                                    <p:dataTable class="nevershowplanttable" id="competitorinfoDetailTable" var="comInfoDetail" paginator="true" rows="4" paginatorPosition="bottom" value="#{companyDetailChartMB.lstPitTable}" widgetVar="competitorinfoDetailTable"
+                                                 editable="true" style="text-align: center"
+                                                 paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown} {JumpToPageDropdown}"
+                                                 currentPageReportTemplate="[ {startRecord} to {endRecord} of {totalRecords} ]" 
+                                                 rendered="#{companyDetailChartMB.noOfPlantRendered}" reflow="true">
+                                        <p:column headerText="Plant Name">
+                                            <h:outputText value="#{companyDetailChartMB.getPlantByPlantId(comInfoDetail.plantId)}" style="center"/>
+                                        </p:column>
+                                        <p:column headerText="Location">
+                                            <h:outputText value="#{comInfoDetail.location}" style="center"/>
+                                        </p:column>
+
+                                        <p:column filterBy="#{comInfoDetail.zone}" headerText="Zone" styleClass="mycolumn" filterMatchMode="in">
+                                            <f:facet name="filter">
+                                                <p:selectCheckboxMenu label="Zone" onchange="PF('competitorinfoDetailTable').filter()" scrollHeight="150" style="background-color: #5FA2C9;color: white"  styleClass="custom-filter">
+                                                    <f:selectItems value="#{companyDetailChartMB.zoneList}"/>
+                                                </p:selectCheckboxMenu>
+                                            </f:facet>
+                                            <h:outputText value="#{comInfoDetail.zone}" />
+                                        </p:column>
+
+
+                                        <p:column headerText="HDB Approved?">
+
+                                            <h:outputText styleClass="fa fa-check" style="text-align: center" rendered="#{companyDetailChartMB.mark(comInfoDetail.hdbapprove)}"/>
+
+                                        </p:column>
+                                        <p:column headerText="Batching Capabilities">
+                                            <h:outputText value="#{comInfoDetail.capabilities}" style="center"/>
+                                        </p:column>
+                                        <p:column headerText="Map">
+                                            <p:commandButton icon="fa fa-map-marker" ajax="true" action="#{companyDetailChartMB.bindMapData(comInfoDetail.plantId)}" update="dlg" styleClass="btn-success datatablebutton" oncomplete="PF('dlg').show();"/>
+                                        </p:column>
+                                    </p:dataTable>
+                                    <div class="ui-g-12 ui-md-12 ui-lg-12 noprintfortrucktable" >
+                                        <p:spacer height="185"></p:spacer>
+                                    </div>
+                                    <div class="ui-g-12 ui-md-12 ui-lg-12" >
+                                        <p:dataTable class="noprintplanttable" id="printPlantTable" var="comInfoDetail" paginator="true" paginatorPosition="bottom" value="#{companyDetailChartMB.listforPlant}"
+                                                     paginatorTemplate="{CurrentPageReport}" currentPageReportTemplate="[Total-#{companyDetailChartMB.listforPlant.size()-1}]" 
+                                                     style="text-align: center">
+                                            <p:column headerText="Plant Name">
+                                                <h:outputText value="#{companyDetailChartMB.getPlantByPlantId(comInfoDetail.plantId)}" style="center"/>
+                                            </p:column>
+                                            <p:column headerText="Location">
+                                                <h:outputText value="#{comInfoDetail.location}" style="center"/>
+                                            </p:column>
+                                            <p:column  headerText="Zone">
+                                                <h:outputText value="#{comInfoDetail.zone}" />
+                                            </p:column>
+                                            <p:column headerText="HDB Approved?">
+                                                <h:outputText styleClass="fa fa-check" style="text-align: center" rendered="#{companyDetailChartMB.mark(comInfoDetail.hdbapprove)}"/>
+                                                <h:outputText value="#{companyDetailChartMB.hdp}" rendered="#{companyDetailChartMB.header(comInfoDetail.hdbapprove)}" style="text-align: center"/>
+                                            </p:column>
+                                            <p:column headerText="Batching Capabilities">
+                                                <h:outputText value="#{comInfoDetail.capabilities}" style="center"/>
+                                            </p:column>
+                                        </p:dataTable>  
+                                    </div>
+                                </h:panelGroup>
+
+                                <h:panelGroup id="tpanle" rendered="#{companyDetailChartMB.truckRendered}"> 
+                                    <div class="ui-g">
+                                        <div class="ui-g-12 ui-md-12 ui-lg-12">
+                                            <p:commandButton value="Generate PDF" styleClass="btn-primary fa fa-arrow-circle-o-down" onclick="document.location = 'truck.xhtml'">
+                                            </p:commandButton>
+                                        </div></div>
+                                    <p:dataTable id="zoneplantTable" rendered="#{companyDetailChartMB.truckPieRendered}" var="zone" paginator="false" sortBy="#{zone.east}" rows="2" value="#{companyDetailChartMB.zoneTruckList}" widgetVar="zoneplantTable"
+                                                 editable="true" style="text-align: center"
+                                                 tableStyle="table-layout:auto">
+                                        <p:column headerText="East">
+                                            <h:outputText value="#{zone.east}" style="center"/>
+                                        </p:column>
+                                        <p:column headerText="West">
+                                            <h:outputText value="#{zone.west}" style="center"/>
+                                        </p:column>
+                                        <p:column headerText="North">   
+                                            <h:outputText value="#{zone.north}" style="center"/>
+                                        </p:column>
+                                        <p:column headerText="Central/South">
+                                            <h:outputText value="#{zone.central_south}" style="center"/>
+                                        </p:column>
+                                        <p:column headerText="North East">
+                                            <h:outputText value="#{zone.north_east}" style="center"/>
+                                        </p:column>
+                                        <p:summaryRow >
+                                            <p:column colspan="4" style="text-align:right">
+                                                <h:outputText value="Total no. of Trucks: " />
+                                            </p:column>
+                                            <p:column>
+                                                <h:outputText value="#{zone.total}">
+                                                    <f:convertNumber locale="en-US" />
+                                                </h:outputText>
+                                            </p:column>
+                                        </p:summaryRow>
+                                    </p:dataTable>
+                                    <p:dataTable id="zoneCapacityTable" rendered="#{companyDetailChartMB.capacityPieRendered}" var="zone" paginator="false" sortBy="#{zone.east}" rows="2" value="#{companyDetailChartMB.zoneCapacityList}" widgetVar="zoneCapacityTable"
+                                                 editable="true" style="text-align: center"
+                                                 tableStyle="table-layout:auto">
+                                        <p:column headerText="East">
+                                            <h:outputText value="#{zone.east}" style="center"/>
+                                        </p:column>
+                                        <p:column headerText="West">
+                                            <h:outputText value="#{zone.west}" style="center"/>
+                                        </p:column>
+                                        <p:column headerText="North">   
+                                            <h:outputText value="#{zone.north}" style="center"/>
+                                        </p:column>
+                                        <p:column headerText="Central/South">
+                                            <h:outputText value="#{zone.central_south}" style="center"/>
+                                        </p:column>
+                                        <p:column headerText="North East">
+                                            <h:outputText value="#{zone.north_east}" style="center"/>
+                                        </p:column>
+                                        <p:summaryRow >
+                                            <p:column colspan="4" style="text-align:right">
+                                                <h:outputText value="Total no. of Capacity: " />
+                                            </p:column>
+                                            <p:column>
+                                                <h:outputText value="#{zone.total}">
+                                                    <f:convertNumber locale="en-US" />
+                                                </h:outputText>
+                                            </p:column>
+                                        </p:summaryRow>
+                                    </p:dataTable>
+                                    <p:spacer height="5"/>
+                                    <p:dataTable  var="plantInfo" paginator="true" rows="4" paginatorPosition="bottom" value="#{companyDetailChartMB.lstPitTable}" widgetVar="zoneChart"
+                                                  editable="true" style="text-align: center"
+                                                  rendered="#{companyDetailChartMB.truckRendered}" reflow="true" tableStyle="table-layout:auto" >
+                                        <p:column headerText="Plant Name">
+                                            <h:outputText value="#{companyDetailChartMB.getPlantByPlantId(plantInfo.plantId)}" style="center"/>
+                                        </p:column>
+                                        <p:column headerText="Location">
+                                            <h:outputText value="#{plantInfo.location}" style="center"/>
+                                        </p:column>
+                                        <p:column filterBy="#{plantInfo.zone}" headerText="Zone" styleClass="mycolumn" filterMatchMode="in">
+                                            <f:facet name="filter">
+                                                <p:selectCheckboxMenu label="Zone" onchange="PF('zoneChart').filter()" scrollHeight="150" style="background-color: #5FA2C9;color: white"  styleClass="custom-filter">
+                                                    <f:selectItems value="#{companyDetailChartMB.zoneList}"/>
+                                                </p:selectCheckboxMenu>
+                                            </f:facet>
+                                            <h:outputText value="#{plantInfo.zone}" />
+                                        </p:column>
+
+                                        <p:column headerText="No of Trucks" rendered="#{companyDetailChartMB.truckPieRendered}">
+                                            <h:outputText value="#{plantInfo.noOfTruck}" style="center">
+                                                <f:convertNumber locale="en-US" />
+                                            </h:outputText>
+                                        </p:column>
+                                        <p:column headerText="Capacity" rendered="#{companyDetailChartMB.capacityPieRendered}">
+                                            <h:outputText value="#{plantInfo.noOfTruck}" style="center">
+                                                <f:convertNumber locale="en-US" />
+                                            </h:outputText>
+                                        </p:column>
+                                        <p:column headerText="Map">
+                                            <p:commandButton icon="fa fa-map-marker" action="#{companyDetailChartMB.bindMapData(plantInfo.plantId)}" update="dlg" styleClass="btn-success datatablebutton" oncomplete="PF('dlg').show();"/>
+                                        </p:column>
+                                    </p:dataTable>
+                                </h:panelGroup>
+                                <h:panelGroup id="tolpanle" rendered="#{companyDetailChartMB.tolRendered}"> 
+                                    <div class="ui-g">
+                                        <div class="ui-g-12 ui-md-12 ui-lg-12 nevershowtotaltable">
+                                            <p:commandButton value="Generate PDF" styleClass="btn-primary fa fa-arrow-circle-o-down" onclick="window.print();">
+                                            </p:commandButton>
+                                        </div></div>
+                                    <p:dataTable id="zoneTruckTable" var="zone" paginator="false" rows="2" sortBy="#{zone.east}" value="#{companyDetailChartMB.tolZonePlantList}" widgetVar="zoneTruckTable"
+                                                 editable="true" style="text-align: center"
+                                                 tableStyle="table-layout:auto">
+                                        <p:column headerText="East">
+                                            <h:outputText value="#{zone.east}" style="center"/>
+                                        </p:column>
+                                        <p:column headerText="West">
+                                            <h:outputText value="#{zone.west}" style="center"/>
+                                        </p:column>
+                                        <p:column headerText="North">   
+                                            <h:outputText value="#{zone.north}" style="center"/>
+                                        </p:column>
+                                        <p:column headerText="Central/South">
+                                            <h:outputText value="#{zone.central_south}" style="center"/>
+                                        </p:column>
+                                        <p:column headerText="North East">
+                                            <h:outputText value="#{zone.north_east}" style="center"/>
+                                        </p:column>
+                                        <p:summaryRow >
+                                            <p:column colspan="4" style="text-align:right">
+                                                <h:outputText escape="false" value="Total no. of Plants: &lt;br&gt; (Batching Capacity): " />
+                                            </p:column>
+                                            <p:column>
+                                                <h:outputText escape="false" value="#{zone.total} &lt;br&gt; (#{zone.total*100} m³/h) ">
+                                                    <f:convertNumber locale="en-US" />
+                                                </h:outputText>
+                                            </p:column>
+                                        </p:summaryRow>
+                                    </p:dataTable>
+                                    <p:spacer height="5"/>
+                                    <p:dataTable class="nevershowtotaltable"  var="plantinfo" paginator="true" rows="4" paginatorPosition="bottom" value="#{companyDetailChartMB.lstPitTable}" widgetVar="chart2"
+                                                 editable="true" style="text-align: center"
+                                                 paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown} {JumpToPageDropdown}"
+                                                 currentPageReportTemplate="[ {startRecord} to {endRecord} of {totalRecords} ]" 
+                                                 rendered="#{companyDetailChartMB.tolRendered}" reflow="true" tableStyle="table-layout:auto">
+                                        <p:column headerText="Plant Name">
+                                            <h:outputText value="#{companyDetailChartMB.getPlantByPlantId(plantinfo.plantId)}" style="center"/>
+                                        </p:column>
+                                        <p:column headerText="Location">
+                                            <h:outputText value="#{plantinfo.location}" style="center"/>
+                                        </p:column>
+                                        <p:column filterBy="#{plantinfo.zone}" headerText="Zone" styleClass="mycolumn" filterMatchMode="in">
+                                            <f:facet name="filter">
+                                                <p:selectCheckboxMenu label="Zone" onchange="PF('chart2').filter()" scrollHeight="150" style="background-color: #5FA2C9;color: white" styleClass="custom-filter">
+
+                                                    <f:selectItems value="#{companyDetailChartMB.zoneList}" />
+                                                </p:selectCheckboxMenu>
+                                            </f:facet>
+                                            <h:outputText value="#{plantinfo.zone}" />
+                                        </p:column>
+
+                                        <p:column headerText="HDB Approved?">
+                                            <h:outputText styleClass="fa fa-check" style="text-align: center" rendered="#{companyDetailChartMB.mark(plantinfo.hdbapprove)}"/>
+                                        </p:column>
+                                        <p:column headerText="Lease Period">
+                                            <h:outputText value="#{plantinfo.leasePeriod}" style="center"/>
+                                        </p:column>
+                                        <p:column headerText="Supported by">
+                                            <h:outputText value="#{plantinfo.supportedBy}" style="center"/>
+                                        </p:column>
+                                        <p:column headerText="Map">
+                                            <p:commandButton icon="fa fa-map-marker" action="#{companyDetailChartMB.bindMapData(plantinfo.plantId)}" update="dlg" styleClass="btn-success datatablebutton" oncomplete="PF('dlg').show();"/>
+                                        </p:column>
+                                    </p:dataTable>
+                                    <div class="ui-g-12 ui-md-12 ui-lg-12 noprinttotaltable" >
+                                        <p:spacer height="185"></p:spacer>
+                                    </div>
+                                    <div class="ui-g-12 ui-md-12 ui-lg-12">
+                                        <p:dataTable class="noprinttotaltable" id="totalTable" var="plantinfo" paginator="true" paginatorPosition="bottom" value="#{companyDetailChartMB.listforTotal}"
+                                                     style="text-align: center"
+                                                     paginatorTemplate="{CurrentPageReport}" currentPageReportTemplate="[Total-#{companyDetailChartMB.listforTotal.size()-1}]"
+                                                     tableStyle="table-layout:auto">
+                                            <p:column headerText="Plant Name">
+                                                <h:outputText value="#{companyDetailChartMB.getPlantByPlantId(plantinfo.plantId)}" style="center"/>
+                                            </p:column>
+                                            <p:column headerText="Location">
+                                                <h:outputText value="#{plantinfo.location}" style="center"/>
+                                            </p:column>
+                                            <p:column headerText="Zone">
+                                                <h:outputText value="#{plantinfo.zone}" />
+                                            </p:column>
+                                            <p:column headerText="HDB Approved?">
+                                                <h:outputText styleClass="fa fa-check" style="text-align: center" rendered="#{companyDetailChartMB.mark(plantinfo.hdbapprove)}"/>
+                                                <h:outputText value="#{companyDetailChartMB.hdp}" rendered="#{companyDetailChartMB.header(plantinfo.hdbapprove)}" style="text-align: center"/>
+                                            </p:column>
+                                            <p:column headerText="Lease Period">
+                                                <h:outputText value="#{plantinfo.leasePeriod}" style="center"/>
+                                            </p:column>
+                                            <p:column headerText="Supported by">
+                                                <h:outputText value="#{plantinfo.supportedBy}" style="center"/>
+                                            </p:column>
+                                        </p:dataTable>
+                                    </div>
+                                </h:panelGroup>
+                                <h:panelGroup id="cpanle" rendered="#{companyDetailChartMB.capabilityRendered}"> 
+                                    <div class="ui-g">
+                                        <div class="ui-g-12 ui-md-12 ui-lg-12 nevershowcapabilitesandotherstable">
+                                            <p:commandButton value="Generate PDF" styleClass="btn-primary fa fa-arrow-circle-o-down" onclick=" window.print();">
+                                            </p:commandButton>
+                                        </div></div>
+                                    <p:dataTable  var="capability"  paginator="false" rows="7" value="#{companyDetailChartMB.capabilityNameList}" widgetVar="chart1"
+                                                  editable="true"
+                                                  tableStyle="table-layout:auto">
+                                        <p:column headerText="Capabilities">   
+                                            <h:outputText value="#{capability.column1}" style="center"/>
+                                        </p:column>
+                                        <p:column headerText="">
+                                            <h:outputText value="#{capability.column2}" style="center"/>
+                                        </p:column>
+                                        <p:column headerText="">
+                                            <h:outputText value="#{capability.column3}" style="center"/>
+                                        </p:column>
+                                    </p:dataTable>
+                                    <p:spacer height="5"/>
+                                    <p:dataTable class="nevershowcapabilitesandotherstable" var="legal" paginator="true" paginatorPosition="bottom" rows="4"  widgetVar="chart2"
+                                                 paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown} {JumpToPageDropdown}"
+                                                 currentPageReportTemplate="[ {startRecord} to {endRecord} of {totalRecords} ]" 
+                                                  editable="true" value="#{companyDetailChartMB.legalIssueList}"
+                                                  rendered="#{companyDetailChartMB.capabilityRendered}" reflow="true" tableStyle="table-layout:auto">
+                                        <f:facet name="header">
+                                            <h:outputLabel value="Legal Issues:" style=" font-size: small;font-weight: bold;margin-left: -7px;"/>
+                                        </f:facet>
+                                        <p:column headerText="Company:">
+                                            <h:outputText value="#{legal.company}" style="center"/>
+                                        </p:column>
+                                        <p:column headerText="Year of Lodge:">
+                                            <h:outputText value="#{legal.yearOfLodge}" style="center"/>
+                                        </p:column>
+                                        <p:column headerText="Supreme Court/ Subordinate Court:">
+                                            <h:outputText value="#{legal.courtType}" style="center"/>
+                                        </p:column>
+                                    </p:dataTable>
+                                    <div class="ui-g-12 ui-md-12 ui-lg-12 noprintcapabilitesandotherstable" >
+                                        <p:spacer height="185"></p:spacer>
+                                    </div>
+                                    <div class="ui-g-12 ui-md-12 ui-lg-12">
+                                        <p:dataTable class="noprintcapabilitesandotherstable" id="capabilitesandother" var="legal" paginator="true" paginatorPosition="bottom"
+                                                      paginatorTemplate="{CurrentPageReport}" currentPageReportTemplate="[Total-#{companyDetailChartMB.legalIssueListForPrint.size()-1}]"
+                                                      value="#{companyDetailChartMB.legalIssueListForPrint}"
+                                                      tableStyle="table-layout:auto">
+                                            <f:facet name="header">
+                                                <h:outputLabel value="Legal Issues:" style=" font-size: small;font-weight: bold;margin-left: -7px;"/>
+                                            </f:facet>
+                                            <p:column headerText="Company:">
+                                                <h:outputText value="#{legal.company}" style="center"/>
+                                            </p:column>
+                                            <p:column headerText="Year of Lodge:">
+                                                <h:outputText value="#{companyDetailChartMB.checkHeader(legal.yearOfLodge)}" style="center"/>
+                                            </p:column>
+                                            <p:column headerText="Supreme Court/ Subordinate Court:">
+                                                <h:outputText value="#{legal.courtType}" style="center"/>
+                                            </p:column>
+                                        </p:dataTable>
+                                    </div>
+                                </h:panelGroup>
+
+                                <h:panelGroup id="vpanle" rendered="#{companyDetailChartMB.volumeRendered}"> 
+                                    <div class="ui-g">
+                                        <div class="ui-g-12 ui-md-12 ui-lg-12 nevershowforvolumebtn">
+                                            <p:commandButton value="Generate PDF" styleClass="btn-primary fa fa-arrow-circle-o-down" onclick="window.print();">
+                                            </p:commandButton>
+                                        </div></div>
+                                    <p:dataTable id="zoneVolumeTable" var="zone" paginator="false" sortBy="#{zone.east}" rows="2" value="#{companyDetailChartMB.zoneVolumeList}" widgetVar="zoneplantTable"
+                                                 editable="true" style="text-align: center"
+                                                 tableStyle="table-layout:auto">
+                                        <p:column headerText="East">
+                                            <h:outputText value="#{zone.east}" style="center">
+                                                <f:convertNumber locale="en-US" />
+                                            </h:outputText>
+                                        </p:column>
+                                        <p:column headerText="West">
+                                            <h:outputText value="#{zone.west}" style="center">
+                                                <f:convertNumber locale="en-US" />
+                                            </h:outputText>
+                                        </p:column>
+                                        <p:column headerText="North">   
+                                            <h:outputText value="#{zone.north}" style="center">
+                                                <f:convertNumber locale="en-US" />
+                                            </h:outputText>
+                                        </p:column>
+                                        <p:column headerText="Central/South">
+                                            <h:outputText value="#{zone.central_south}" style="center">
+                                                <f:convertNumber locale="en-US" />
+                                            </h:outputText>
+                                        </p:column>
+                                        <p:column headerText="North East">
+                                            <h:outputText value="#{zone.north_east}" style="center">
+                                                <f:convertNumber locale="en-US" />
+                                            </h:outputText>
+                                        </p:column>
+                                        <p:summaryRow >
+                                            <p:column colspan="4" style="text-align:right">
+                                                <h:outputText value="Total no. of Volume: " />
+                                            </p:column>
+                                            <p:column>
+                                                <h:outputText value="#{zone.total}">
+                                                    <f:convertNumber locale="en-US" />
+                                                </h:outputText>
+                                            </p:column>
+                                        </p:summaryRow>
+                                    </p:dataTable>
+                                    <p:spacer height="5"/>
+                                    <p:dataTable class="nevershowvolumetable"  var="volumeInfo" paginator="true" rows="4" paginatorPosition="bottom" value="#{companyDetailChartMB.lstPitTable}" widgetVar="chart3"
+                                                 editable="true" style="text-align: center"
+                                                 paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown} {JumpToPageDropdown}"
+                                                 currentPageReportTemplate="[ {startRecord} to {endRecord} of {totalRecords} ]" 
+                                                 rendered="#{companyDetailChartMB.volumeRendered}" reflow="true" tableStyle="table-layout:auto">
+                                        <p:column headerText="Plant Name">
+                                            <h:outputText value="#{companyDetailChartMB.getPlantByPlantId(volumeInfo.plantId)}" style="center"/>
+                                        </p:column>
+                                        <p:column headerText="Location">
+                                            <h:outputText value="#{volumeInfo.location}" style="center"/>
+                                        </p:column>
+                                        <p:column filterBy="#{volumeInfo.zone}" headerText="Zone" styleClass="mycolumn" filterMatchMode="in">
+                                            <f:facet name="filter">
+                                                <p:selectCheckboxMenu label="Zone" onchange="PF('chart3').filter()" scrollHeight="150" style="background-color: #5FA2C9;color: white"  styleClass="custom-filter">
+                                                    <f:selectItems value="#{companyDetailChartMB.zoneList}"/>
+                                                </p:selectCheckboxMenu>
+                                            </f:facet>
+                                            <h:outputText value="#{volumeInfo.zone}" />
+                                        </p:column>
+
+                                        <p:column headerText="Volume m&lt;sup&gt;3&lt;/sup&gt; per Month">
+                                            <h:outputText value="#{volumeInfo.noOfTruck}" style="center">
+                                                <f:convertNumber locale="en-US" />
+                                            </h:outputText>
+                                        </p:column>
+                                        <p:column headerText="Map">
+                                            <p:commandButton icon="fa fa-map-marker" action="#{companyDetailChartMB.bindMapData(volumeInfo.plantId)}" update="dlg" styleClass="btn-success datatablebutton" oncomplete="PF('dlg').show();"/>
+                                        </p:column>
+                                    </p:dataTable>
+                                    <div class="ui-g-12 ui-md-12 ui-lg-12 noprintvolumetable" >
+                                        <p:spacer height="185"></p:spacer>
+                                    </div>
+                                    <div class="ui-g-12 ui-md-12 ui-lg-12">
+                                        <p:dataTable class="noprintvolumetable" id="volumetable" var="volumeInfo" paginator="true" paginatorPosition="bottom" value="#{companyDetailChartMB.listforVolume}"
+                                                     style="text-align: center"
+                                                     paginatorTemplate="{CurrentPageReport}" currentPageReportTemplate="[Total-#{companyDetailChartMB.listforVolume.size()-1}]"
+                                                     tableStyle="table-layout:auto">
+                                            <p:column headerText="Plant Name">
+                                                <h:outputText value="#{companyDetailChartMB.getPlantByPlantId(volumeInfo.plantId)}" style="center"/>
+                                            </p:column>
+                                            <p:column headerText="Location">
+                                                <h:outputText value="#{volumeInfo.location}" style="center"/>
+                                            </p:column>
+                                            <p:column headerText="Zone">
+                                                <h:outputText value="#{volumeInfo.zone}" />
+                                            </p:column>
+                                            <p:column headerText="Volume m&lt;sup&gt;3&lt;/sup&gt; per Month">
+                                                <h:outputText value="#{companyDetailChartMB.checkforVolume(volumeInfo.noOfTruck)}" style="center"/>
+                                            </p:column>
+                                        </p:dataTable> 
+                                    </div>
+                                </h:panelGroup>
+                            </div> 
+
+                        </div>
+                        <p:spacer width="5"/>
+                    </div>
+                    <p:spacer width="5"/>
+                </h:form>
+            </div>
+        </div>
+        <p:dialog id="dlg" closeOnEscape="true" widgetVar="dlg" width="625" height="400" modal="true" appendTo="@(body)">
+            <p:gmap id="gmap" center="#{companyDetailChartMB.focusLatLong}" zoom="13" type="HYBRID" style="width:100%;height:100%" model="#{companyDetailChartMB.complexModel}"/>
+        </p:dialog>
+    </ui:define>
+</ui:composition>

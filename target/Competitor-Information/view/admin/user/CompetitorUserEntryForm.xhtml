@@ -1,0 +1,414 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:adm="http://github.com/adminfaces"
+                template="#{layoutMB.template}">
+
+    <f:metadata>
+        <f:viewAction action="#{menuMB.init}"></f:viewAction>
+    </f:metadata>
+    <ui:define name="head-end">
+        <h:outputStylesheet library="css" name="competitor_datatable_style.css"/>
+        <h:outputStylesheet library="css" name="intlTelInput.css"/>
+        <style type="text/css">
+            .intl-tel-input.allow-dropdown{
+                width: 100%!important;
+            }
+        </style>
+    </ui:define>
+
+    <ui:define name="title">
+        User Registration
+    </ui:define>
+
+    <ui:define name="description">
+    </ui:define>
+
+    <ui:define name="body">
+        <adm:breadcrumb title="User Form" link="/view/admin/user/CompetitorUserEntryForm.xhtml"/>
+        <h:form id="addForm" rendered="#{competitorUserMB.renderAddPanel}">
+            <p:messages id="msgs" closable="true"/>
+
+            <div class="box box-primary" style="border: white;">
+                <div class="box-header with-border">
+                    <p:panel style="-moz-border-radius: 25px!important; 
+                             -webkit-border-radius: 25px!important;">
+                        <p:spacer width="5"/>
+                        <div class="ui-g">
+                            <div class="ui-g-12 ui-md-12 ui-lg-12">
+                                <div class="ui-g-12 ui-md-6 ui-lg-6">
+                                    <div class="ui-g-12 ui-md-12 ui-lg-5" align="right">
+                                        <h:outputLabel value="User Name: " />
+                                    </div>
+                                    <div class="ui-g-12 ui-md-12 ui-lg-6 ui-fluid">
+                                        <p:focus />
+                                        <p:inputText  id="user_name" label="User Name" value="#{competitorUserMB.user.userName}" 
+                                                      requiredMessage="#{competitorUserMB.nameRequiredMessage}" required="true" maxlength="50"/>
+                                    </div>
+                                    <div class="ui-g-12 ui-md-12 ui-lg-1">
+                                    </div>
+                                </div>
+                                <div class="ui-g-12 ui-md-6 ui-lg-6">
+                                    <div class="ui-g-12 ui-md-12 ui-lg-4" align="right">
+                                        <h:outputLabel value="Name: " />
+                                    </div>
+                                    <div class="ui-g-12 ui-md-12 ui-lg-6 ui-fluid">
+                                        <p:inputText  id="full_name" label="Name" value="#{competitorUserMB.user.fullName}"
+                                                      requiredMessage="#{competitorUserMB.fullnameRequiredMessage}" required="true" style="width:100%" maxlength="50"/>
+                                    </div>
+                                    <div class="ui-g-12 ui-md-12 ui-lg-1">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="ui-g-12 ui-md-12 ui-lg-12">
+                                <div class="ui-g-12 ui-md-6 ui-lg-6">
+                                    <div class="ui-g-12 ui-md-12 ui-lg-5" align="right">
+                                        <h:outputLabel value="Password: " />
+                                    </div>
+                                    <div class="ui-g-12 ui-md-12 ui-lg-6 ui-fluid">
+                                        <p:password required="true" id="password" label="Password" requiredMessage="#{competitorUserMB.passwordRequiredMessage}" value="#{competitorUserMB.user.password}" feedback="true" style="width:100%" maxlength="50">
+                                            <f:validateLength minimum="6" />
+                                        </p:password>
+                                    </div>
+                                    <div class="ui-g-12 ui-md-12 ui-lg-1">
+                                    </div>
+                                </div>
+                                <div class="ui-g-12 ui-md-6 ui-lg-6">
+                                    <div class="ui-g-12 ui-md-12 ui-lg-4" align="right">
+                                        <h:outputLabel value="Confirm Password: " />
+                                    </div>
+                                    <div class="ui-g-12 ui-md-12 ui-lg-6 ui-fluid">
+                                        <p:inputText id="confirm_pass" style="width:100%" type="password" value="#{competitorUserMB.confirmPassword}" maxlength="50"/>
+                                    </div>
+                                    <div class="ui-g-12 ui-md-12 ui-lg-1">
+
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="ui-g-12 ui-md-12 ui-lg-12">
+                                <div class="ui-g-12 ui-md-6 ui-lg-6">
+                                    <div class="ui-g-12 ui-md-12 ui-lg-5" align="right">
+                                        <h:outputLabel value="Phone: " />
+                                    </div>
+                                    <div class="ui-g-12 ui-md-12 ui-lg-6 ui-fluid">
+                                        <input type="tel" id="phone" onkeypress="format_num(event)" class="ui-inputfield ui-inputtext ui-widget ui-state-default ui-corner-all" maxlength="50"/>
+                                        <h:inputHidden id="hiddenphone" value="#{competitorUserMB.user.phone}"/>
+                                    </div>
+                                    <div class="ui-g-12 ui-md-12 ui-lg-1">
+
+                                    </div>
+                                </div>
+                                <div class="ui-g-12 ui-md-6 ui-lg-6">
+                                    <div class="ui-g-12 ui-md-12 ui-lg-4" align="right">
+                                        <h:outputLabel value="Role: " />
+                                    </div>
+                                    <div class="ui-g-12 ui-md-12 ui-lg-6 ui-fluid">
+                                        <p:selectOneMenu value="#{competitorUserMB.user.roleId}" id="role" style="width:100%" required="true" requiredMessage="#{competitorUserMB.roleRequiredMessage}">
+                                            <f:selectItem itemLabel="Select Role" itemValue="" />   
+                                            <f:selectItems value="#{globalDropDownList.roleList}" var="role" itemLabel="#{role.roleName}" itemValue="#{role.roleId}"/>
+                                        </p:selectOneMenu>
+                                    </div>
+                                    <div class="ui-g-12 ui-md-12 ui-lg-1">
+
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="ui-g-12 ui-md-12 ui-lg-12">
+                                <div class="ui-g-12 ui-md-6 ui-lg-6">
+                                    <div class="ui-g-12 ui-md-12 ui-lg-5" align="right">
+                                        <h:outputLabel value="Email: " />
+                                    </div>
+                                    <div class="ui-g-12 ui-md-12 ui-lg-6 ui-fluid">
+                                        <p:inputText id="email" label="Email" value="#{competitorUserMB.user.email}" style="width:100%" validatorMessage="Email format is wrong!" >
+                                        	<f:validateRegex pattern="([\w\.-]*[a-zA-Z0-9_]@[\w\.-]*[a-zA-Z0-9]\.[a-zA-Z][a-zA-Z\.]*[a-zA-Z])?"/>
+                                        </p:inputText>
+                                    </div>
+                                    <div class="ui-g-12 ui-md-12 ui-lg-1">
+                                    </div>
+                                </div>
+                                <div class="ui-g-12 ui-md-6 ui-lg-6">
+                                    <div class="ui-g-12 ui-md-12 ui-lg-4" align="right">
+                                        <h:outputLabel value="Address: " />
+                                    </div>
+                                    <div class="ui-g-12 ui-md-12 ui-lg-6 ui-fluid">
+                                        <p:inputTextarea label="Address" value="#{competitorUserMB.user.address}" id="address" maxlength="200" rows="4" 
+                                                         style="width:100%;resize: none" autoResize="false"/>
+                                    </div>
+                                    <div class="ui-g-12 ui-md-12 ui-lg-1">
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ui-g ui-fluid" id="buttons">
+                            <div class="ui-g-12 ui-md-8 ui-lg-4"></div>
+                            <div class="ui-g-12 ui-md-4 ui-lg-3">
+                                <div class="ui-g-12 ui-md-6 ui-lg-6 ui-fluid">
+                                    <p:commandButton value="Save" onclick="getVars()"
+                                                     styleClass="btn-primary fa fa-save"  
+                                                     actionListener="#{competitorUserMB.addUser()}" 
+                                                     ajax="false" />
+                                </div>
+                                <div class="ui-g-12 ui-md-6 ui-lg-6 ui-fluid">
+                                    <p:commandButton id="back" value="Cancel" styleClass="btn-info fa fa-mail-reply" process="@this" 
+                                                     action="#{competitorUserMB.cancel()}" />
+                                </div>
+                            </div>
+                        </div>
+                        <p:separator/> 
+                    </p:panel>
+                </div>
+            </div>
+
+        </h:form>
+
+        <h:form id="updateForm" rendered="#{competitorUserMB.renderUpdatePanel}"> 
+            <div class="box box-primary" style="border: white;">
+                <div class="box-header with-border">
+                    <p:messages id="updatemsg" closable="true"></p:messages>   
+                    <p:panel style="-moz-border-radius: 25px!important; 
+                             -webkit-border-radius: 25px!important;">
+                        <p:spacer width="5"/>
+                        <div class="ui-g">
+                            <div class="ui-g-12 ui-md-12 ui-lg-12">
+                                <div class="ui-g-12 ui-md-6 ui-lg-6">
+                                    <div class="ui-g-12 ui-md-12 ui-lg-5" align="right">
+                                        <h:outputLabel value="User Name: " />
+                                    </div>
+                                    <div class="ui-g-12 ui-md-12 ui-lg-6 ui-fluid">
+                                        <p:focus />
+                                        <p:inputText  style="width: 100%" label="User Name  " id="user_name_update" value="#{competitorUserMB.updateUser.userName}" required="true" maxlength="50" requiredMessage="#{competitorUserMB.nameRequiredMessage}"/>
+                                    </div>
+                                    <div class="ui-g-12 ui-md-12 ui-lg-1">
+                                       
+                                    </div>
+                                </div>
+                                <div class="ui-g-12 ui-md-6 ui-lg-6">
+                                    <div class="ui-g-12 ui-md-12 ui-lg-4" align="right">
+                                        <h:outputLabel value="Name: " />
+                                    </div>
+                                    <div class="ui-g-12 ui-md-12 ui-lg-6 ui-fluid">
+                                        <p:inputText  style="width: 100%" label="Full Name  " id="full_name_update" value="#{competitorUserMB.updateUser.fullName}" required="true" maxlength="50" requiredMessage="#{competitorUserMB.fullnameRequiredMessage}"/>
+                                    </div>
+                                    <div class="ui-g-12 ui-md-12 ui-lg-1">
+                                        
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="ui-g-12 ui-md-12 ui-lg-12">
+                                <div class="ui-g-12 ui-md-6 ui-lg-6">
+                                    <div class="ui-g-12 ui-md-12 ui-lg-5" align="right">
+                                        <h:outputLabel value="Phone: " />
+                                    </div>
+                                    <div class="ui-g-12 ui-md-12 ui-lg-6 ui-fluid">
+                                        <input type="tel" id="phoneupdate" onkeypress="format_num(event)" class="ui-inputfield ui-inputtext ui-widget ui-state-default ui-corner-all" maxlength="50"/> 
+                                        <h:inputHidden id="hiddenphone" value="#{competitorUserMB.updateUser.phone}"/>
+                                    </div>
+                                    <div class="ui-g-12 ui-md-12 ui-lg-1">
+                                    </div>
+                                </div>
+                                <div class="ui-g-12 ui-md-6 ui-lg-6">
+                                    <div class="ui-g-12 ui-md-12 ui-lg-4" align="right">
+                                        <h:outputLabel value="Role: " />
+                                    </div>
+                                    <div class="ui-g-12 ui-md-12 ui-lg-6 ui-fluid">
+                                        <p:selectOneMenu value="#{competitorUserMB.updateUser.roleId}" id="role_update" style="width:100%">
+                                            <f:selectItems value="#{globalDropDownList.roleList}" var="role" itemLabel="#{role.roleName}" itemValue="#{role.roleId}"/>
+                                        </p:selectOneMenu>
+                                    </div>
+                                    <div class="ui-g-12 ui-md-12 ui-lg-1">
+
+                                    </div>
+                                </div>
+                            </div>
+
+
+
+                            <div class="ui-g-12 ui-md-12 ui-lg-12">
+                                <div class="ui-g-12 ui-md-6 ui-lg-6">
+                                    <div class="ui-g-12 ui-md-12 ui-lg-5" align="right">
+                                        <h:outputLabel value="Email: " />
+                                    </div>
+                                    <div class="ui-g-12 ui-md-12 ui-lg-6 ui-fluid">
+                                        <p:inputText style="width: 100%" id="email_update"
+                                                     value="#{competitorUserMB.updateUser.email}"
+                                                     label="Email" validatorMessage="Email format is wrong!">
+                                            <f:validateRegex pattern="([\w\.-]*[a-zA-Z0-9_]@[\w\.-]*[a-zA-Z0-9]\.[a-zA-Z][a-zA-Z\.]*[a-zA-Z])?"/>
+                                        </p:inputText>
+                                    </div>
+                                    <div class="ui-g-12 ui-md-12 ui-lg-1">
+                                       
+                                    </div>
+                                </div>
+                                <div class="ui-g-12 ui-md-6 ui-lg-6">
+                                    <div class="ui-g-12 ui-md-12 ui-lg-4" align="right">
+                                        <h:outputLabel value="Address: " />
+                                    </div>
+                                    <div class="ui-g-12 ui-md-12 ui-lg-6 ui-fluid">
+                                        <p:inputTextarea value="#{competitorUserMB.updateUser.address}" id ="address_update" maxlength="200" rows="4" 
+                                                         style="width:100%;resize: none" autoResize="false" label="Address"/>
+                                    </div>
+                                    <div class="ui-g-12 ui-md-12 ui-lg-1">
+                                        <p:message for="address_update" display="icon"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ui-g ui-fluid" id="buttons">
+                            <div class="ui-g-12 ui-md-8 ui-lg-4"></div>
+                            <div class="ui-g-12 ui-md-4 ui-lg-3">
+                                <div class="ui-g-12 ui-md-6 ui-lg-6 ui-fluid">
+                                    <p:commandButton value="Update" ajax="false" id="updateButtonId"  
+                                                     styleClass="btn-primary fa fa-save" onclick="getvariable()" update="updateForm" action="#{competitorUserMB.updateCompetitorUser()}" />
+                                </div>
+                                <div class="ui-g-12 ui-md-6 ui-lg-6 ui-fluid">
+                                    <p:commandButton id="cancelEditButtonId"  value="Cancel" process="@this" 
+                                                     styleClass="btn-info fa fa-mail-reply" action="#{competitorUserMB.cancel()}" />  
+                                </div>
+                            </div>
+                            <div class="ui-g-12 ui-md-4 ui-lg-3">
+                                <div class="ui-g-12 ui-md-6 ui-lg-6 ui-fluid">
+                                    <p:commandButton id="passwordResetBtn" value="Reset Password" style="margin-left: -1em;"
+                                                     styleClass="btn-danger" update="resetPassDialog" 
+                                                     oncomplete="PF('resetPassDialog').show();"/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <p:separator/> 
+                    </p:panel>
+                </div>
+            </div>
+
+        </h:form>
+
+        <p:dialog id="resetPassDialog" widgetVar="resetPassDialog"  
+                  header="Reset Password"  width="500" modal="true"
+                  hideEffect="explode" appendTo="@(body)"  
+                  resizable="false" draggable="false"  fitViewport="true" positionType="absolute"
+                  closeOnEscape="true" style="background-color: #eaedf1">
+            <h:form id="resetPassForm">
+                <div class="ui-g">
+                    <div class="ui-g-12 ui-md-6 ui-lg-4" >
+                        <p:outputLabel value="New Password:"/>
+                    </div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-5 ui-fluid" >
+                        <p:password id="new_password" label="New Password" required="true" requiredMessage="#{competitorUserMB.message_new_password_required}"
+                                    value="#{competitorUserMB.newPassword}"  feedback="true">
+                            <f:validateLength minimum="6" maximum="50"/>
+                        </p:password>
+                    </div>
+                </div>
+                <div class="ui-g">
+                    <div class="ui-g-12 ui-md-6 ui-lg-4" >
+                        <p:outputLabel value="Confirm Password:"/>
+                    </div>
+                    <div class="ui-g-12 ui-md-6 ui-lg-5 ui-fluid" >
+                        <p:password label="Confirm Password" id="confirm_new_password" requiredMessage="#{competitorUserMB.message_confirm_password_required}"
+                                    value="#{competitorUserMB.confirmNewPassword}"  required="true">
+                            <f:validateLength minimum="6" maximum="50"/>
+                        </p:password>
+                    </div>
+                </div>
+                <div class="ui-g-12 ui-md-12 ui-lg-12 ui-fluid" >
+                    <div class="ui-g-12 ui-md-6 ui-lg-4" ></div>
+                    <div class="ui-g-12 ui-md-9 ui-lg-4" >
+                        <p:commandButton id="changePassBtn" styleClass="btn-primary fa fa-save"  
+                                         update ="resetPassForm,updateForm:updatemsg" value="Change" oncomplete="PF('resetPassDialog').hide()"
+                                         actionListener="#{competitorUserMB.resetPassword()}" >
+                        </p:commandButton>
+                    </div>
+                    <div class="ui-g-12 ui-md-9 ui-lg-4">
+                        <p:commandButton id="cancel" styleClass="btn-info fa fa-mail-reply" immediate="true" value="Cancel" onclick="PF('resetPassDialog').hide()"/>
+                    </div>
+                </div>
+            </h:form>
+        </p:dialog>  
+
+        <script src="../../../resources/js/intlTelInput.js" />
+        <script src="../../../resources/js/utils.js"/>
+        <script type="text/javascript">
+                            $("#phone").intlTelInput();
+                            $(document).ready(function () {
+                                $("input[type='tel']").click(function () {
+                                    $(this).select();
+                                });
+                            });
+                            function getVars() {
+                                document.getElementById("addForm:hiddenphone").value = $("#phone").intlTelInput("getNumber");
+                            }
+                            function format_num(evt) {
+                                var theEvent = evt || window.event;
+                                var key = theEvent.keyCode || theEvent.which;
+                                if (key === 48 || key === 49 || key === 50 ||
+                                        key === 51 || key === 52 || key === 53 ||
+                                        key === 54 || key === 55 || key === 56 || key === 57
+                                        || key === 43
+                                        || key === 45
+                                        || key === 8
+                                        || key === 46
+                                        || key === 16
+                                        || key === 39
+                                        || key === 9
+                                        || key === 39) {
+                                } else {
+                                    theEvent.returnValue = false;
+                                    if (theEvent.preventDefault) {
+                                        theEvent.preventDefault();
+                                    }
+                                }
+                            }
+        </script>
+        <script type="text/javascript">
+
+            $("#phoneupdate").intlTelInput();
+            var plus = "+";
+            $(document).ready(function () {
+                $("input[type='tel']").click(function () {
+                    $(this).select();
+                });
+                if (#{competitorUserMB.renderUpdatePanel}) {
+                    $("#phoneupdate").intlTelInput("setNumber", "#{competitorUserMB.updateUser.phone}");
+                }
+            });
+
+            function getvariable() {
+                document.getElementById("updateForm:hiddenphone").value = $("#phoneupdate").intlTelInput("getNumber");
+            }
+            function format_num(evt) {
+                var theEvent = evt || window.event;
+                var key = theEvent.keyCode || theEvent.which;
+                if (key === 48 || key === 49 || key === 50 ||
+                        key === 51 || key === 52 || key === 53 ||
+                        key === 54 || key === 55 || key === 56 || key === 57
+                        || key === 43
+                        || key === 45
+                        || key === 8
+                        || key === 46
+                        || key === 16
+                        || key === 39
+                        || key === 9
+                        || key === 39) {
+                } else {
+                    theEvent.returnValue = false;
+                    if (theEvent.preventDefault) {
+                        theEvent.preventDefault();
+                    }
+                }
+            }
+            function emailCheck(){
+            	 var value = $(this).val();
+                 var regex_cell = '[\w\.-]*[a-zA-Z0-9_]@[\w\.-]*[a-zA-Z0-9]\.[a-zA-Z][a-zA-Z\.]*[a-zA-Z]';
+                 var new_value = value.replace(regex_cell, '');
+                 alert(new_value);
+            }
+            
+        </script>
+    </ui:define>
+</ui:composition>

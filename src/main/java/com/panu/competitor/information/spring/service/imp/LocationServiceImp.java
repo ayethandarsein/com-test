@@ -1,0 +1,88 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.panu.competitor.information.spring.service.imp;
+
+
+import com.panu.competitor.information.dao.LocationDAO;
+import com.panu.competitor.information.exception.CompetitorException;
+import com.panu.competitor.information.pojo.entity.Capabilities;
+import com.panu.competitor.information.pojo.entity.CodeSetup;
+import com.panu.competitor.information.pojo.entity.Location;
+import com.panu.competitor.information.spring.service.ILocationService;
+import com.panu.competitor.information.spring.service.constant.NamedQueryConstant;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.inject.Named;
+import org.springframework.beans.factory.annotation.Autowired;
+
+/**
+ *
+ * @author HNDK
+ */
+@Named
+public class LocationServiceImp implements ILocationService {
+
+    @Autowired
+    private LocationDAO locationDAO;
+
+    @Override
+    public List<Location> findAllLocation() {
+        return locationDAO.select(NamedQueryConstant.GET_LOCATION);
+    }
+
+    @Override
+    public void addLocation(Location location) throws CompetitorException {
+        locationDAO.insert(location);
+    }
+
+    @Override
+    public void updateLocation(Location updateLocation) throws CompetitorException {
+        locationDAO.update(updateLocation);
+    }
+
+    @Override
+    public Map<String, String> validateLocationInfo(Location new_location, List<Location> locationList) {
+        Map<String, String> validateIds = new HashMap<String,String>();
+        locationList.stream().map((location) -> {
+            if (location.getName().trim().equalsIgnoreCase(new_location.getName().trim())) {
+                validateIds.put("Name", "true");
+            }
+            return location;
+        }).filter((capability) -> (capability.getName().trim().equalsIgnoreCase(new_location.getName().trim()))).forEach((_item) -> {
+            validateIds.put("Name", "true");
+        });
+        return validateIds;
+    }
+
+    @Override
+    public void deleteLocation(Location deleteLocation) throws CompetitorException {
+        locationDAO.delete(deleteLocation);
+    }
+
+    @Override
+    public Location getLocationByLocationIds(String name) {
+        return locationDAO.geLocationByLocationId(name);
+    }
+
+    @Override
+    public Location findLocationByLocationId(int id) {
+        String constantQuery = NamedQueryConstant.FIND_LOCATION_BY_ID;
+        List<String> paramColumnList = new ArrayList<String>();
+        paramColumnList.add(NamedQueryConstant.LOCATIONID);
+        List<Integer> paramValueList = new ArrayList<Integer>();
+        paramValueList.add(id);
+        List<Location> locationList = locationDAO.selectByIntType(constantQuery, paramColumnList,
+                paramValueList);
+        Location location = new Location();
+        if (locationList != null && !locationList.isEmpty() && locationList.get(0) != null) {
+            location = locationList.get(0);
+        }
+        return location;
+    }
+
+}

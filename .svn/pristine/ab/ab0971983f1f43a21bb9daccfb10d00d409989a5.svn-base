@@ -1,0 +1,76 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.panu.competitor.information.spring.service.imp;
+
+import com.panu.competitor.information.common.CurrentLoggedInUser;
+import com.panu.competitor.information.dao.AttachmentDAO;
+import com.panu.competitor.information.exception.CompetitorException;
+import com.panu.competitor.information.pojo.entity.Attachment;
+import com.panu.competitor.information.spring.service.IAttachmentService;
+import com.panu.competitor.information.spring.service.constant.NamedQueryConstant;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+/**
+ *
+ * @author ThetPyaeSoneHtoo
+ */
+import javax.inject.Named;
+import org.springframework.beans.factory.annotation.Autowired;
+
+@Named
+public class AttachmentServiceImp implements IAttachmentService {
+
+    @Autowired
+    AttachmentDAO attachmentDao;
+
+    private CurrentLoggedInUser cu = new CurrentLoggedInUser();
+
+    public AttachmentDAO getAttachmentDao() {
+        return attachmentDao;
+    }
+
+    @Override
+    public void addAttachment(Attachment attachemnt) {
+        try {
+            getAttachmentDao().add(attachemnt);
+        } catch (CompetitorException ex) {
+            Logger.getLogger(AttachmentServiceImp.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    @Override
+    public List<Attachment> getAttachmentByCompetitorInfoDetialID(int id) {
+        List<String> paramColumns = new ArrayList<String>();
+        paramColumns.add(NamedQueryConstant.COMPETITORINFORMAIOTNDETAILID);
+        List<Integer> paramValues = new ArrayList<Integer>();
+        paramValues.add(id);
+        return getAttachmentDao().selectByIntType(NamedQueryConstant.FIND_ATTACHMENT_BY_ID, paramColumns, paramValues);
+    }
+
+    @Override
+    public void removeAttachmentIdList(List<Integer> attachmentIdList) throws CompetitorException {
+        for (Integer attachmentId : attachmentIdList) {
+            Attachment attachment = getAttachmentDao().select(Attachment.class, attachmentId);
+            attachment.setIsDelete(true);
+            attachment.setUpdatedDate(new Date());
+            attachment.setUpdatedUserId(cu.getLogInUserId());
+            getAttachmentDao().update(attachment);
+        }
+
+    }
+
+    @Override
+    public void updateAttachment(Attachment attachment) {
+        try {
+            getAttachmentDao().update(attachment);
+        } catch (CompetitorException ex) {
+            Logger.getLogger(AttachmentServiceImp.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+}
